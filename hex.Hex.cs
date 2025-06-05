@@ -1,8 +1,11 @@
 namespace Hex
 {
     /// <summary>
+    /// From Java implementation of Hex from the HappyHex project.
+    /// <para>
     /// Represents a 2D coordinate in a hexagonal grid system using a specialized integer coordinate model.
     /// Supports both raw coordinate access and derived line-based computations across three axes: I, J, and K.
+    /// </para>
     /// </summary>
     /// <remarks>
     /// <para>
