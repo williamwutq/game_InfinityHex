@@ -70,7 +70,7 @@ namespace Hex
     /// <list type="bullet">
     ///   <item>Access and compute raw coordinates: <see cref="I"/>, <see cref="J"/>, <see cref="K"/>.</item>
     ///   <item>Access and compute line-distance based coordinates: <see cref="LineI"/>, <see cref="LineJ"/>, <see cref="LineK"/>.</item>
-    ///   <item>Create hex objects through constructors or factory methods: <see cref="Hex()"/>, <see cref="Hex(int, int)"/>, <see cref="Create()"/>, <see cref="Create(int, int)"/>.</item>
+    ///   <item>Create hex objects through constructors or factory methods: <see cref="Hex()"/>, <see cref="Hex(int, int)"/>, <see cref="LineHex()"/>, <see cref="LineHex(int, int)"/>.</item>
     ///   <item>Move hex object along I, J, or K axes (increment line coordinates): <see cref="MoveI(int)"/>, <see cref="MoveJ(int)"/>, <see cref="MoveK(int)"/>.</item>
     ///   <item>Addition and subtraction of coordinates: <see cref="Add(Hex)"/> and <see cref="Subtract(Hex)"/>.</item>
     ///   <item>Check for line alignment and adjacency between hexes: <see cref="InLineI(Hex)"/>, <see cref="Adjacent(Hex)"/>, etc.</item>
