@@ -194,7 +194,7 @@ namespace Hex
         /// <returns>A string representation of the block, including color, coordinates, and state.</returns>
         public override string ToString()
         {
-            return $"Block[color = {Color}, coordinates = {{{LineI}, {LineJ}, {LineK}}}, state = {State}]";
+            return $"Block[color = {color}, coordinates = {{{LineI}, {LineJ}, {LineK}}}, state = {state}]";
         }
         /// <summary>
         /// String representation of the block used for debugging with less information. This use line coordinates.
@@ -203,7 +203,7 @@ namespace Hex
         /// <returns>A string representation of the block, including only coordinates and state.</returns>
         public string ToBasicString()
         {
-            return $"{{{LineI}, {LineJ}, {LineK}, {State}}}";
+            return $"{{{LineI}, {LineJ}, {LineK}, {state}}}";
         }
         /// <summary>
         /// <inheritdoc/>
