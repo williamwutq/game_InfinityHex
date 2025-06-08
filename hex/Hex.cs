@@ -130,7 +130,7 @@ namespace Hex
         /// <returns>A new <see cref="Hex"/> coordinate positioned according to the given line indices.</returns>
         public static Hex LineHex(int i, int k)
         {
-            return new Hex(2 * i - k, 2 * k - i);
+            return new Hex(2 * k - i, 2 * i - k);
         }
 
         // Raw coordinates
