@@ -7,8 +7,12 @@ namespace Hex
         private Hex origin;
         private int moves;
 
+        private HandleCoordinateReset? coordinateResetHandler;
         public delegate void HandleCoordinateReset(Hex oldOrigin);
-        public event HandleCoordinateReset? OnReset;
+        public void SetCoordinateResetHandler(HandleCoordinateReset coordinateResetHandler)
+        {
+            this.coordinateResetHandler = coordinateResetHandler;
+        }
         
         public CoordinateManager(
             int moveLimit = 40,
@@ -26,7 +30,7 @@ namespace Hex
             if (moves >= moveLimit || !offsetOrigin.InRange(spaceLimit)){
                 origin = new Hex();
                 moves = 0;
-                OnReset?.Invoke(offsetOrigin);
+                coordinateResetHandler?.Invoke(offsetOrigin);
             } else {
                 origin = offsetOrigin;
             }
@@ -42,31 +46,39 @@ namespace Hex
         private Block[] blockGrid;
 
         public delegate void HandleFetchBlock(Hex[] coordinates);
-        public event HandleFetchBlock? OnFetch;
+        private HandleFetchBlock? fetchBlockHandler;
+        public void SetFetchBlockHandler(HandleFetchBlock fetchBlockHandler)
+        {
+            this.fetchBlockHandler = fetchBlockHandler;
+        }
 
-        public WindowManager(int windowSize){
+        public WindowManager(int windowSize)
+        {
             this.windowSize = windowSize;
             // Calculate array size
             // Recursive Formula Ak = A(k-1) + 6 * (k-1)
             // General Formula: Ak = 1 + 3 * (k-1)*(k)
-            this.blockGrid = new Block[1 + 3*(windowSize)*(windowSize-1)];
+            this.blockGrid = new Block[1 + 3 * (windowSize) * (windowSize - 1)];
             // Add into array to generate the grid
             int i = 0;
-            for(int a = 1-windowSize; a < windowSize; a ++){
-                for(int b = 1-windowSize; b < windowSize; b ++){
+            for (int a = 1 - windowSize; a < windowSize; a++)
+            {
+                for (int b = 1 - windowSize; b < windowSize; b++)
+                {
                     Block nb = new Block(new Hex());
                     nb.MoveI(b);
                     nb.MoveK(a);
-                    if(nb.InRange(windowSize)){
+                    if (nb.InRange(windowSize))
+                    {
                         blockGrid[i] = nb;
-                        i ++;
+                        i++;
                     }
                 }
             }
             // Already sorted by first I then K
 
             // fetch request
-            OnFetch?.Invoke(Array.ConvertAll(blockGrid, block => block.HexClone()));
+            fetchBlockHandler?.Invoke(Array.ConvertAll(blockGrid, block => block.HexClone()));
         }
 
         public Block[] GetBlocks() {
@@ -78,12 +90,31 @@ namespace Hex
     public class HexEngine
     {
         private List<Block> snake;
+        private List<Block> cache;
+        private CoordinateManager coordinateManager;
+        private WindowManager windowManager;
         public HexEngine()
         {
+            coordinateManager = new CoordinateManager();
+            coordinateManager.SetCoordinateResetHandler(OnCoordinateReset);
+            windowManager = new WindowManager(7);
             snake = new List<Block>(1);
+            cache = new List<Block>();
             snake.Add(new Block(new Hex()));
         }
         public void Move(Hex offset)
+        {
+            if (offset.InRange(2))
+            {
+                coordinateManager.Move(offset);
+            }
+            else throw new ArgumentOutOfRangeException("Move offset exceed 7-Block grid definition range");
+        }
+        public void OnCoordinateReset(Hex offset)
+        {
+
+        }
+        public void OnFetchRequested(Hex[] coordinates)
         {
             
         }
