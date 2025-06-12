@@ -196,13 +196,34 @@ namespace Hex
         }
     }
 
+    /// <summary>
+    /// Generates <see cref="Block"/> instances with configurable frequency and color range,
+    /// supporting both single and batch block generation for a hexagonal grid.
+    /// </summary>
     public class BlockGenerator
     {
         private int frequency;
         private int colorRange;
         private Random colorGenerator;
         private Random stateGenerator;
-        public BlockGenerator(int frequency = 9, int colorRange = 12)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BlockGenerator"/> class.
+        /// </summary>
+        /// <param name="frequency">
+        /// The frequency at which occupied blocks are generated. Must be greater than 1.
+        /// A lower frequency increases the chance of generating occupied blocks.
+        /// </param>
+        /// <param name="colorRange">
+        /// The number of possible colors for occupied blocks. Must be at least 1.
+        /// </param>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Thrown if <paramref name="frequency"/> is less than 1 or equal to 1,
+        /// or if <paramref name="colorRange"/> is less than 1.
+        /// </exception>
+        public BlockGenerator(
+            int frequency = 9,
+            int colorRange = 12
+        )
         {
             if (frequency < 1)
             {
@@ -221,6 +242,18 @@ namespace Hex
             colorGenerator = new Random();
             stateGenerator = new Random();
         }
+        /// <summary>
+        /// Generates a single <see cref="Block"/> at the specified <see cref="Hex"/> coordinate.
+        /// The block may be occupied or unoccupied, determined randomly based on the frequency.
+        /// If occupied, a random color within the specified color range is assigned.
+        /// </summary>
+        /// <param name="coordinate">The <see cref="Hex"/> coordinate for the block.</param>
+        /// <returns>
+        /// A new <see cref="Block"/> instance at the given coordinate, either occupied with a random color or unoccupied.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if <paramref name="coordinate"/> is <c>null</c>.
+        /// </exception>
         public Block GenerateBlock(Hex coordinate)
         {
             ArgumentNullException.ThrowIfNull(coordinate);
@@ -235,11 +268,27 @@ namespace Hex
                 return new Block(coordinate);
             }
         }
+        /// <summary>
+        /// Generates an array of <see cref="Block"/> instances for the specified <see cref="Hex"/> coordinates.
+        /// A subset of the blocks will be randomly set as occupied, each with a random color,
+        /// based on the configured frequency. The rest will be unoccupied.
+        /// </summary>
+        /// <param name="coordinates">An array of <see cref="Hex"/> coordinates to generate blocks for.</param>
+        /// <returns>
+        /// An array of <see cref="Block"/> instances corresponding to the input coordinates,
+        /// with some blocks randomly set as occupied.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if <paramref name="coordinates"/> is <c>null</c>.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown if any element in <paramref name="coordinates"/> is <c>null</c>.
+        /// </exception>
         public Block[] GenerateBlocks(Hex[] coordinates)
         {
             ArgumentNullException.ThrowIfNull(coordinates);
             // Generate unoccupied blocks as default
-            Block[] blocks = Array.ConvertAll(coordinates, coo => new Block(coo));
+            Block[] blocks = Array.ConvertAll(coordinates, coo => coo == null ? throw new ArgumentException("Array contains null coordinates") : new Block(coo));
             // Randomly decide which blocks to be occupied
             int length = coordinates.Length;
             if (length < frequency)
@@ -258,7 +307,9 @@ namespace Hex
             // Set occupied blocks
             foreach (int index in occupiedIndexes)
             {
-                blocks[index] = GenerateBlock(coordinates[index]);
+                // Generate an occupied block with random color
+                int color = colorGenerator.Next(0, colorRange);
+                blocks[index] = new Block(coordinates[index], color, true);
             }
             // Return
             return blocks;
