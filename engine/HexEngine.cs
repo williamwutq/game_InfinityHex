@@ -1,6 +1,10 @@
 
 namespace Hex
 {
+    /// <summary>
+    /// Manages hexagonal grid coordinates with movement tracking and origin reset functionality.
+    /// Implements a coordinate system for hexagonal grids, with limits on moves and spatial range.
+    /// </summary>
     public class CoordinateManager
     {
         private int moveLimit;
@@ -9,12 +13,25 @@ namespace Hex
         private int moves;
 
         private HandleCoordinateReset? coordinateResetHandler;
+        /// <summary>
+        /// Delegate for handling origin reset events.
+        /// </summary>
+        /// <param name="oldOrigin">The origin before reset.</param>
         public delegate void HandleCoordinateReset(Hex oldOrigin);
+        /// <summary>
+        /// Sets the handler for coordinate reset events.
+        /// </summary>
+        /// <param name="coordinateResetHandler">The handler to invoke on reset.</param>
         public void SetCoordinateResetHandler(HandleCoordinateReset coordinateResetHandler)
         {
             this.coordinateResetHandler = coordinateResetHandler;
         }
 
+        /// <summary>
+        /// Initializes a new CoordinateManager with specified limits.
+        /// </summary>
+        /// <param name="moveLimit">Maximum moves before origin reset (default: 40).</param>
+        /// <param name="spaceLimit">Maximum distance from origin before reset (default: 16).</param>
         public CoordinateManager(
             int moveLimit = 40,
             int spaceLimit = 16
@@ -25,7 +42,14 @@ namespace Hex
             this.origin = new Hex();
             this.moves = 0;
         }
-
+        /// <summary>
+        /// Moves the origin by the specified offset and handles reset conditions.
+        /// </summary>
+        /// <param name="offset">Hex offset to move the origin by.</param>
+        /// <remarks>
+        /// Increments move count and updates origin. If moveLimit or spaceLimit is exceeded,
+        /// resets origin to (0,0,0), clears move count, and invokes reset handler with old origin.
+        /// </remarks>
         public void Move(Hex offset)
         {
             moves++;
@@ -42,31 +66,60 @@ namespace Hex
             }
         }
 
+        /// <summary>
+        /// Resets the origin to (0,0,0) and clears move count.
+        /// </summary>
         public void Reset()
         {
             origin = new Hex();
             moves = 0;
         }
 
+        /// <summary>
+        /// Gets a copy of the current origin.
+        /// </summary>
+        /// <returns>A cloned Hex representing the current origin.</returns>
         public Hex GetOrigin()
         {
             return this.origin.HexClone();
         }
 
+        /// <summary>
+        /// Converts a relative coordinate to an absolute coordinate by adding the origin.
+        /// </summary>
+        /// <param name="relativeCoordinate">The relative coordinate to convert.</param>
+        /// <returns>The absolute coordinate.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if relativeCoordinate is null.</exception>
         public Hex ToAbsolute(Hex relativeCoordinate)
         {
             ArgumentNullException.ThrowIfNull(relativeCoordinate);
             return relativeCoordinate.Add(this.origin);
         }
+        /// <summary>
+        /// Converts an absolute coordinate to a relative coordinate by subtracting the origin.
+        /// </summary>
+        /// <param name="absoluteCoordinate">The absolute coordinate to convert.</param>
+        /// <returns>The relative coordinate.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if absoluteCoordinate is null.</exception>
         public Hex ToRelative(Hex absoluteCoordinate)
         {
             ArgumentNullException.ThrowIfNull(absoluteCoordinate);
             return absoluteCoordinate.Subtract(this.origin);
         }
+        /// <summary>
+        /// Converts an array of relative coordinates to absolute coordinates.
+        /// </summary>
+        /// <param name="relativeCoordinates">Array of relative coordinates.</param>
+        /// <returns>Array of absolute coordinates.</returns>
         public Hex[] ToAbsolute(Hex[] relativeCoordinates)
         {
             return Array.ConvertAll(relativeCoordinates, coo => ToAbsolute(coo));
         }
+        /// <summary>
+        /// Converts an array of absolute coordinates to relative coordinates.
+        /// </summary>
+        /// <param name="absoluteCoordinates">Array of absolute coordinates.</param>
+        /// <returns>Array of relative coordinates.</returns>
         public Hex[] ToRelative(Hex[] absoluteCoordinates)
         {
             return Array.ConvertAll(absoluteCoordinates, coo => ToRelative(coo));
