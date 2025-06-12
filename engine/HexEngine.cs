@@ -1,4 +1,6 @@
 
+using System.Text;
+
 namespace Hex
 {
     /// <summary>
@@ -168,6 +170,43 @@ namespace Hex
 
             // fetch request
             fetchBlockHandler?.Invoke(Array.ConvertAll(blockGrid, block => block.HexClone()));
+        }
+
+        private int Search(Hex coordinate, int start, int end)
+        {
+            if (start > end) { return -1; }
+            int middleIndex = start + (end - start) / 2;
+            Block middle = blockGrid[middleIndex];
+            int i = coordinate.LineI;
+            int k = coordinate.LineK;
+            int mi = middle.LineI;
+            int mk = middle.LineK;
+            if (mi == i && mk == k)
+            {
+                return middleIndex;
+            }
+            if (mi < i || (mi == i && mk < k))
+            {
+                // second half
+                return Search(coordinate, middleIndex + 1, end);
+            }
+            else
+            {
+                // first half
+                return Search(coordinate, start, middleIndex - 1);
+            }
+        }
+
+        public Block GetBlock(int index) => blockGrid[index];
+        public Block GetBlock(Hex coordinate)
+        {
+            ArgumentNullException.ThrowIfNull(coordinate, "Input coordinate cannot be null");
+            int index = Search(coordinate, 0, blockGrid.Length - 1);
+            if (index == -1)
+            {
+                throw new ArgumentOutOfRangeException($"Target coordinate out of range of the displayed block grid of radius {windowSize}");
+            }
+            return blockGrid[index];
         }
 
         public Block[] GetBlocks()
