@@ -209,6 +209,36 @@ namespace Hex
             return blockGrid[index];
         }
 
+        public String GetASCIIArt()
+        {
+            StringBuilder sb = new StringBuilder();
+            int size = windowSize - 1;
+            for (int lineJ = -size; lineJ < windowSize; lineJ++)
+            {
+                for (int j = -size * 2; j <= size * 2; j++)
+                {
+                    // Calculate hex coordinate
+                    Hex coordinate = new Hex((j + 3 * lineJ) / 2, (j - 3 * lineJ) / 2);
+                    // Filter for "straight" hexes
+                    if (coordinate.LineJ != lineJ || coordinate.J != j)
+                    {
+                        sb.Append(" ");
+                    }
+                    else try
+                        {
+                            Block block = GetBlock(coordinate);
+                            sb.Append(block.State() ? "X" : "O");
+                        }
+                        catch (ArgumentOutOfRangeException)
+                        {
+                            sb.Append(" ");
+                        }
+                }
+                sb.AppendLine();
+            }
+            return sb.ToString();
+        }
+
         public Block[] GetBlocks()
         {
             // This method is not safe. Please do not modify the returned array of Blocks.
@@ -320,6 +350,10 @@ namespace Hex
         private void OnGenerationRequested(Hex[] coordinates)
         {
 
+        }
+        public String GetASCIIArt()
+        {
+            return windowManager.GetASCIIArt();
         }
     }
 
