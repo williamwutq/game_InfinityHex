@@ -144,12 +144,6 @@ namespace Hex
         {
             this.windowSize = windowSize;
             blockGrid = new Block[1 + 3 * (windowSize) * (windowSize - 1)];
-            Reset();
-        }
-
-        public void Reset()
-        {
-            blockGrid = new Block[1 + 3 * (windowSize) * (windowSize - 1)];
             // Add into array to generate the grid
             int i = 0;
             for (int a = 1 - windowSize; a < windowSize; a++)
@@ -168,6 +162,16 @@ namespace Hex
             }
             // Already sorted by first I then K
 
+            // fetch request
+            fetchBlockHandler?.Invoke(Array.ConvertAll(blockGrid, block => block.HexClone()));
+        }
+
+        public void Reset()
+        {
+            foreach (Block block in blockGrid)
+            {
+                block.SetColor(-1); block.SetState(false);
+            }
             // fetch request
             fetchBlockHandler?.Invoke(Array.ConvertAll(blockGrid, block => block.HexClone()));
         }
