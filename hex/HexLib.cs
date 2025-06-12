@@ -69,5 +69,34 @@ namespace Hex
         /// This represents a grid of radius 2 centered at the origin (0, 0, 0).
         /// </summary>
         public static Hex[] SevenBlockArr => [JMinus, KMinus, IMinus, Origin, IPlus, KPlus, JPlus];
+        /// <summary>
+        /// Negate a Hex coordinate to its opposite peer. This method is perfered compare to new Hex().Subtract(hex).
+        /// This method only works for coordinates in the standard 7-Block grid, otherwise an <see cref="ArgumentOutOfRangeException"/> 
+        /// will be thrown.
+        /// The standard 7-Block grid is defined as a sequence of hexes at the following line coordinates {I, J, K}:
+        /// (-1, 0, -1), (-1, 1, 0), (0, -1, -1), (0, 0, 0), (0, 1, 1), (1, -1, 0), (1, 0, 1).
+        /// This represents a grid of radius 2 centered at the origin (0, 0, 0).
+        /// </summary>
+        /// <exception cref="ArgumentNullException">Thrown when the coordinate is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when the coordinate is outside of the standard 7-Block grid.</exception>
+        public static Hex Negate(Hex sevenBlockHex)
+        {
+            ArgumentNullException.ThrowIfNull(sevenBlockHex);
+            if (sevenBlockHex.Equals(Origin)) {
+                return Origin;
+            } else if (sevenBlockHex.Equals(IMinus)) {
+                return IPlus;
+            } else if (sevenBlockHex.Equals(IPlus)) {
+                return IMinus;
+            } else if (sevenBlockHex.Equals(JMinus)) {
+                return JPlus;
+            } else if (sevenBlockHex.Equals(JPlus)) {
+                return JMinus;
+            } else if (sevenBlockHex.Equals(KMinus)) {
+                return KPlus;
+            } else if (sevenBlockHex.Equals(KPlus)) {
+                return KMinus;
+            } else throw new ArgumentOutOfRangeException($"Hex coordinate {sevenBlockHex} exceed 7-Block grid definition range");
+        }
     }
 }
