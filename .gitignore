@@ -1,0 +1,10 @@
+*.csproj
+*.sln
+*/*.csproj
+*/*.sln
+*.dll
+
+obj/*
+bin/*
+
+*/Debug/*
