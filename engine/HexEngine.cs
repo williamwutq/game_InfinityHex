@@ -75,9 +75,17 @@ namespace Hex
         }
     }
 
-    public class HexEngine{
-        public HexEngine(){
-
+    public class HexEngine
+    {
+        private List<Block> snake;
+        public HexEngine()
+        {
+            snake = new List<Block>(1);
+            snake.Add(new Block(new Hex()));
+        }
+        public void Move(Hex offset)
+        {
+            
         }
     }
 
