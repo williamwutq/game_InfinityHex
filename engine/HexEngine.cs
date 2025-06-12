@@ -42,6 +42,12 @@ namespace Hex
             }
         }
 
+        public void Reset()
+        {
+            origin = new Hex();
+            moves = 0;
+        }
+
         public Hex GetOrigin()
         {
             return this.origin.HexClone();
@@ -82,10 +88,13 @@ namespace Hex
         public WindowManager(int windowSize)
         {
             this.windowSize = windowSize;
-            // Calculate array size
-            // Recursive Formula Ak = A(k-1) + 6 * (k-1)
-            // General Formula: Ak = 1 + 3 * (k-1)*(k)
-            this.blockGrid = new Block[1 + 3 * (windowSize) * (windowSize - 1)];
+            blockGrid = new Block[1 + 3 * (windowSize) * (windowSize - 1)];
+            Reset();
+        }
+
+        public void Reset()
+        {
+            blockGrid = new Block[1 + 3 * (windowSize) * (windowSize - 1)];
             // Add into array to generate the grid
             int i = 0;
             for (int a = 1 - windowSize; a < windowSize; a++)
@@ -117,7 +126,6 @@ namespace Hex
 
     public class HexEngine
     {
-        private List<Block> snake;
         private List<Block> cache;
         private CoordinateManager coordinateManager;
         private WindowManager windowManager;
@@ -126,24 +134,45 @@ namespace Hex
             coordinateManager = new CoordinateManager();
             coordinateManager.SetCoordinateResetHandler(OnCoordinateReset);
             windowManager = new WindowManager(7);
-            snake = new List<Block>(1);
             cache = new List<Block>();
-            snake.Add(new Block(new Hex()));
         }
         public void Move(Hex offset)
         {
             if (offset.InRange(2))
             {
+                // Save original origin
+                Hex originalOrigin = coordinateManager.GetOrigin();
                 // Request coordinate move to the opposite direction
                 coordinateManager.Move(HexLib.Origin.Subtract(offset));
                 // Check head
-
+                Block head = SafeGetBlock(originalOrigin);
+                if (head.State())
+                {
+                    // If head is occupied, check the type of occupation
+                    if (head.Color() == -2)
+                    {
+                        // If occupied by snake, cause snake death
+                        // Currently, only reset everything
+                        resetEngine();
+                    }
+                    else
+                    {
+                        // Eat food, increment snake length
+                        head.SetState(true);
+                        head.SetColor(-2); // -2 (default occupied color) refering to snake
+                    }
+                }
+                else
+                {
+                    // If not, this block is now snake head, and do not increment snake length
+                    head.SetState(true);
+                    head.SetColor(-2); // -2 (default occupied color) refering to snake
+                }
             }
             else throw new ArgumentOutOfRangeException("Move offset exceed 7-Block grid definition range");
         }
         public void OnCoordinateReset(Hex offset)
         {
-            snake.ForEach(block => block.Subtract(offset));
             cache.ForEach(block => block.Subtract(offset));
         }
         public void OnFetchRequested(Hex[] coordinates)
@@ -189,6 +218,12 @@ namespace Hex
                 }
                 return first;
             }
+        }
+        private void resetEngine()
+        {
+            cache = new List<Block>();
+            coordinateManager.Reset();
+            windowManager.Reset();
         }
         private void OnGenerationRequested(Hex[] coordinates)
         {
