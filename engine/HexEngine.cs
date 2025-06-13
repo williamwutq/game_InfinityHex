@@ -417,29 +417,15 @@ namespace Hex
                     int i_artifactIndex = 0;
                     for (int i = 0; i < windowSize - 1; i++)
                     {
-                        for (int b = windowSize + i - 1; b >= 0; b--)
-                        {
-                            if (b == 0)
-                            {
-                                // Mark artifact
-                                blockGrid[i_index] = fetchedGrid[i_artifactIndex];
-                                i_artifactIndex++;
-                            }
-                            i_index--;
-                        }
+                        i_index -= (windowSize + i);
+                        blockGrid[i_index + 1] = fetchedGrid[i_artifactIndex];
+                        i_artifactIndex++;
                     }
                     for (int i = windowSize - 1; i >= 0; i--)
                     {
-                        for (int b = windowSize + i - 1; b >= 0; b--)
-                        {
-                            if (b == 0)
-                            {
-                                // Mark artifact
-                                blockGrid[i_index] = fetchedGrid[i_artifactIndex];
-                                i_artifactIndex++;
-                            }
-                            i_index--;
-                        }
+                        i_index -= (windowSize + i);
+                        blockGrid[i_index + 1] = fetchedGrid[i_artifactIndex];
+                        i_artifactIndex++;
                     }
                 }
             }
