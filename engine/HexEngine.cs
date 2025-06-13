@@ -109,6 +109,28 @@ namespace Hex
             return absoluteCoordinate.Subtract(this.origin);
         }
         /// <summary>
+        /// Converts a block in relative coordinate to a block in absolute coordinate by adding the origin.
+        /// </summary>
+        /// <param name="relativeBlock">The relative block to convert.</param>
+        /// <returns>The absolute block.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if relativeBlock is null.</exception>
+        public Block ToAbsolute(Block relativeBlock)
+        {
+            ArgumentNullException.ThrowIfNull(relativeBlock);
+            return relativeBlock.Add(this.origin);
+        }
+        /// <summary>
+        /// Converts a block in absolute coordinate to a block in relative coordinate by subtracting the origin.
+        /// </summary>
+        /// <param name="absoluteBlock">The absolute block to convert.</param>
+        /// <returns>The relative block.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if absoluteBlock is null.</exception>
+        public Block ToRelative(Block absoluteBlock)
+        {
+            ArgumentNullException.ThrowIfNull(absoluteBlock);
+            return absoluteBlock.Subtract(this.origin);
+        }
+        /// <summary>
         /// Converts an array of relative coordinates to absolute coordinates.
         /// </summary>
         /// <param name="relativeCoordinates">Array of relative coordinates.</param>
@@ -125,6 +147,24 @@ namespace Hex
         public Hex[] ToRelative(Hex[] absoluteCoordinates)
         {
             return Array.ConvertAll(absoluteCoordinates, coo => ToRelative(coo));
+        }
+        /// <summary>
+        /// Converts an array of blocks in relative coordinates to absolute coordinates.
+        /// </summary>
+        /// <param name="relativeBlocks">Array of blocks in relative coordinates.</param>
+        /// <returns>Array of blocks in absolute coordinates.</returns>
+        public Block[] ToAbsolute(Block[] relativeBlocks)
+        {
+            return Array.ConvertAll(relativeBlocks, coo => ToAbsolute(coo));
+        }
+        /// <summary>
+        /// Converts an array of blocks in absolute coordinates to relative coordinates.
+        /// </summary>
+        /// <param name="absoluteBlocks">Array of blocks in absolute coordinates.</param>
+        /// <returns>Array of blocks in relative coordinates.</returns>
+        public Block[] ToRelative(Block[] absoluteBlocks)
+        {
+            return Array.ConvertAll(absoluteBlocks, coo => ToRelative(coo));
         }
     }
 
@@ -261,7 +301,8 @@ namespace Hex
                                 else if (block.Color() < 10)
                                 {
                                     sb.Append(block.Color().ToString("X")); // Occupied with color
-                                } else if (block.Color() < 36)
+                                }
+                                else if (block.Color() < 36)
                                 {
                                     sb.Append((char)('A' + block.Color() - 10)); // Occupied with color A-Z
                                 }
@@ -306,6 +347,7 @@ namespace Hex
             }
             else if (offset.Equals(HexLib.IMinus))
             {
+                Block[] artifacts = new Block[windowSize * 2 - 1];
                 int index = 0;
                 void ProcessRow(int rowLength)
                 {
@@ -333,7 +375,10 @@ namespace Hex
             }
             else if (offset.Equals(HexLib.IPlus))
             {
+                Block[] artifacts = new Block[windowSize * 2 - 1];
+                artifacts[0] = blockGrid[0];
                 int index = blockGrid.Length - 1;
+                int artifactIndex = 0;
                 void ProcessRow(int rowLength)
                 {
                     for (int b = rowLength - 1; b >= 0; b--)
@@ -345,18 +390,58 @@ namespace Hex
                             block.SetColor(prev.Color());
                             block.SetState(prev.State());
                         }
-                        else if (debug)
+                        else
                         {
-                            // Debug: mark artifact
-                            blockGrid[index].SetColor(-1);
+                            // Mark artifact
+                            artifacts[artifactIndex] = blockGrid[index];
+                            artifactIndex++;
+                            if (debug)
+                            {
+                                // Debug: Mark artifact
+                                blockGrid[index].SetColor(-1);
+                            }
                         }
                         index--;
                     }
                 }
                 for (int i = 0; i < windowSize - 1; i++) ProcessRow(windowSize + i);
                 for (int i = windowSize - 1; i >= 0; i--) ProcessRow(windowSize + i);
-                // Debug: mark artifact
+                // Debug: Mark artifact
                 if (debug) blockGrid[0].SetColor(-1);
+                // Fetch request
+                Block[]? fetchedGrid = fetchBlockHandler?.Invoke(Array.ConvertAll(artifacts, block => block.HexClone()));
+                if (fetchedGrid != null && fetchedGrid.Length == windowSize * 2 - 1)
+                {
+                    blockGrid[0] = fetchedGrid[0];
+                    int i_index = blockGrid.Length - 1;
+                    int i_artifactIndex = 0;
+                    for (int i = 0; i < windowSize - 1; i++)
+                    {
+                        for (int b = windowSize + i - 1; b >= 0; b--)
+                        {
+                            if (b == 0)
+                            {
+                                // Mark artifact
+                                blockGrid[i_index] = fetchedGrid[i_artifactIndex];
+                                i_artifactIndex++;
+                            }
+                            i_index--;
+                        }
+                    }
+                    for (int i = windowSize - 1; i >= 0; i--)
+                    {
+                        for (int b = windowSize + i - 1; b >= 0; b--)
+                        {
+                            if (b == 0)
+                            {
+                                // Mark artifact
+                                blockGrid[i_index] = fetchedGrid[i_artifactIndex];
+                                i_artifactIndex++;
+                            }
+                            i_index--;
+                        }
+                    }
+                }
             }
             else throw new ArgumentOutOfRangeException("Move offset exceed 7-Block grid definition range");
         }
@@ -473,7 +558,7 @@ namespace Hex
                 OnGenerationRequested(notInCache.ToArray());
             }
             // Return all blocks in cache
-            return Array.ConvertAll(coordinates, coo => CacheSearch(coo));
+            return Array.ConvertAll(coordinates, coo => coordinateManager.ToAbsolute(CacheSearch(coo)));
         }
 
         public Block SafeGetBlock(Hex coordinate)
