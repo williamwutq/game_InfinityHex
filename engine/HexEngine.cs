@@ -348,6 +348,7 @@ namespace Hex
             else if (offset.Equals(HexLib.IMinus))
             {
                 Block[] artifacts = new Block[windowSize * 2 - 1];
+                int artifactIndex = 0;
                 int index = 0;
                 void ProcessRow(int rowLength)
                 {
@@ -360,18 +361,48 @@ namespace Hex
                             prev.SetColor(block.Color());
                             prev.SetState(block.State());
                         }
-                        else if (index != 0 && debug)
+                        else if (index != 0)
                         {
-                            // Debug: mark artifact
-                            blockGrid[index - 1].SetColor(-1);
+                            // Mark artifact
+                            artifacts[artifactIndex] = blockGrid[index - 1];
+                            artifactIndex++;
+                            if (debug)
+                            {
+                                // Debug: Mark artifact
+                                blockGrid[index - 1].SetColor(-1);
+                            }
                         }
                         index++;
                     }
                 }
                 for (int i = 0; i < windowSize - 1; i++) ProcessRow(windowSize + i);
                 for (int i = windowSize - 1; i >= 0; i--) ProcessRow(windowSize + i);
+                artifacts[artifactIndex] = blockGrid[index - 1];
                 // Debug: mark artifact
                 if (debug) blockGrid[index - 1].SetColor(-1);
+                // Fetch request
+                Block[]? fetchedGrid = fetchBlockHandler?.Invoke(Array.ConvertAll(artifacts, block => block.HexClone()));
+                if (fetchedGrid != null && fetchedGrid.Length == windowSize * 2 - 1)
+                {
+                    int i_index = -1;
+                    int i_artifactIndex = 0;
+                    for (int i = 0; i < windowSize - 1; i++)
+                    {
+                        if (i_index != -1)
+                        {
+                            blockGrid[i_index] = fetchedGrid[i_artifactIndex];
+                            i_artifactIndex++;
+                        }
+                        i_index += (windowSize + i);
+                    }
+                    for (int i = windowSize - 1; i >= 0; i--)
+                    {
+                        blockGrid[i_index] = fetchedGrid[i_artifactIndex];
+                        i_artifactIndex++;
+                        i_index += (windowSize + i);
+                    }
+                    blockGrid[i_index] = fetchedGrid[i_artifactIndex];
+                }
             }
             else if (offset.Equals(HexLib.IPlus))
             {
