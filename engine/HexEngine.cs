@@ -130,6 +130,7 @@ namespace Hex
 
     public class WindowManager
     {
+        const bool debug = true;
         private readonly int windowSize;
         private Block[] blockGrid;
 
@@ -270,11 +271,11 @@ namespace Hex
                                 }
                                 else if (block.Color() == 62)
                                 {
-                                    sb.Append('+'); // Occupied with color a-z
+                                    sb.Append('+'); // Occupied with color +
                                 }
-                                else if (block.Color() == 62)
+                                else if (block.Color() == 63)
                                 {
-                                    sb.Append('-'); // Occupied with color a-z
+                                    sb.Append('-'); // Occupied with color -
                                 }
                                 else
                                 {
@@ -303,48 +304,46 @@ namespace Hex
             {
                 throw new ArgumentOutOfRangeException("No move recieved");
             }
-            else if (offset.Equals(HexLib.IPlus))
+            else if (offset.Equals(HexLib.IMinus))
             {
                 int index = 0;
-                int i = 0;
-                while (i < windowSize)
+                void ProcessRow(int rowLength)
                 {
-                    // The n th i line have windowSize + n blocks
-                    // Shift color and state to right
-                    for (int b = 0; b < windowSize + i; b++)
+                    for (int b = 0; b < rowLength; b++)
                     {
                         if (b != 0)
                         {
-                            Block block = blockGrid[index + 1];
-                            Block prev = blockGrid[index];
+                            Block block = blockGrid[index];
+                            Block prev = blockGrid[index - 1];
                             prev.SetColor(block.Color());
                             prev.SetState(block.State());
                         }
-                        index++;
-                    }
-                    i++;
-                }
-                i = 0;
-                while (i < windowSize - 1)
-                {
-                    // The n th i line have windowSize * 2 - 1 - n blocks
-                    // Shift color and state to right
-                    for (int b = 0; b < windowSize * 2 - 2 - i; b++)
-                    {
-                        if (b != 0)
+                        else if (index != 0 && debug)
                         {
-                            if (index + 1 == blockGrid.Length) continue;
-                            Block block = blockGrid[index + 1];
-                            Block prev = blockGrid[index];
-                            prev.SetColor(block.Color());
-                            prev.SetState(block.State());
+                            // Debug: mark artifact
+                            blockGrid[index - 1].SetColor(-1);
                         }
                         index++;
                     }
-                    i++;
                 }
+                for (int i = 0; i < windowSize - 1; i++) ProcessRow(windowSize + i);
+                for (int i = windowSize - 1; i >= 0; i--) ProcessRow(windowSize + i);
+                // Debug: mark artifact
+                if (debug) blockGrid[index - 1].SetColor(-1);
             }
             else throw new ArgumentOutOfRangeException("Move offset exceed 7-Block grid definition range");
+        }
+
+        public void TestPopulate()
+        {
+            // This method is for testing purpose only
+            // Populate the block grid with random blocks
+            Random random = new Random();
+            for (int i = 0; i < blockGrid.Length; i++)
+            {
+                blockGrid[i].SetState(true);
+                blockGrid[i].SetColor(i % 64);
+            }
         }
 
         public Block[] GetBlocks()
@@ -369,6 +368,10 @@ namespace Hex
             windowManager = new WindowManager(7);
             windowManager.SetFetchBlockHandler(OnFetchRequested);
             windowManager.Reset();
+        }
+        public WindowManager GetWindowManager()
+        {
+            return windowManager;
         }
         public void Move(Hex offset)
         {
