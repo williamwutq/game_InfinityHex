@@ -331,6 +331,33 @@ namespace Hex
                 // Debug: mark artifact
                 if (debug) blockGrid[index - 1].SetColor(-1);
             }
+            else if (offset.Equals(HexLib.IPlus))
+            {
+                int index = blockGrid.Length - 1;
+                void ProcessRow(int rowLength)
+                {
+                    for (int b = rowLength - 1; b >= 0; b--)
+                    {
+                        if (b != 0)
+                        {
+                            Block block = blockGrid[index];
+                            Block prev = blockGrid[index - 1];
+                            block.SetColor(prev.Color());
+                            block.SetState(prev.State());
+                        }
+                        else if (debug)
+                        {
+                            // Debug: mark artifact
+                            blockGrid[index].SetColor(-1);
+                        }
+                        index--;
+                    }
+                }
+                for (int i = 0; i < windowSize - 1; i++) ProcessRow(windowSize + i);
+                for (int i = windowSize - 1; i >= 0; i--) ProcessRow(windowSize + i);
+                // Debug: mark artifact
+                if (debug) blockGrid[0].SetColor(-1);
+            }
             else throw new ArgumentOutOfRangeException("Move offset exceed 7-Block grid definition range");
         }
 
