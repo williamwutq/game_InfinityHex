@@ -460,14 +460,85 @@ namespace Hex
                     }
                 }
             }
+            else if (offset.Equals(HexLib.JMinus))
+            {
+                void Shift(int start, int end)
+                {
+                    Block prev = blockGrid[start];
+                    Block block = blockGrid[end];
+                    prev.SetColor(block.Color());
+                    prev.SetState(block.State());
+                }
+                for (int r = 0; r < windowSize; r++)
+                {
+                    int index = r;
+                    Boolean notLast = r != windowSize - 1;
+                    for (int c = 0; c < windowSize - 1; c++)
+                    {
+                        Shift(index, index += windowSize + c + 1);
+                    }
+                    if (notLast)
+                    {
+                        Shift(index, index += windowSize * 2 - 1);
+                    }
+                    else if (debug)
+                    {
+                        // Debug: Mark artifact
+                        blockGrid[index].SetColor(-1);
+                        index += windowSize * 2 - 1;
+                    }
+                    for (int c = 0; c < windowSize - r - 2; c++)
+                    {
+                        Shift(index, index += 2 * windowSize - c - 2);
+                    }
+                    if (debug && notLast)
+                    {
+                        // Debug: Mark artifact
+                        blockGrid[index].SetColor(-1);
+                    }
+                }
+                for (int r = 0; r < windowSize; r++)
+                {
+                    int index = windowSize * r + r * (r - 1) / 2;
+                    Block prev;
+                    Block block;
+                    for (int c = 0; c < windowSize - r; c++)
+                    {
+                        prev = blockGrid[index];
+                        index += windowSize + c + r + 1;
+                        block = blockGrid[index];
+                        prev.SetColor(block.Color());
+                        prev.SetState(block.State());
+                    }
+                    index--; // This is necessary
+                    for (int c = 0; c < windowSize - 2; c++)
+                    {
+                        prev = blockGrid[index];
+                        index += 2 * windowSize - c - 2;
+                        block = blockGrid[index];
+                        prev.SetColor(block.Color());
+                        prev.SetState(block.State());
+                    }
+                    if (debug)
+                    {
+                        // Debug: Mark artifact
+                        blockGrid[index].SetColor(-1);
+                    }
+                }
+                // Test
+                Block origin = blockGrid[blockGrid.Length / 2];
+                origin.SetColor(63);
+                origin.SetState(true);
+                Block shifted = GetBlock(offset);
+                shifted.SetColor(62);
+                shifted.SetState(true);
+            }
             else throw new ArgumentOutOfRangeException("Move offset exceed 7-Block grid definition range");
         }
 
         public void TestPopulate()
         {
             // This method is for testing purpose only
-            // Populate the block grid with random blocks
-            Random random = new Random();
             for (int i = 0; i < blockGrid.Length; i++)
             {
                 blockGrid[i].SetState(true);
