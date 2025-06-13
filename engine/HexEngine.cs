@@ -536,7 +536,7 @@ namespace Hex
             else if (coordinates.Length == 1)
             {
                 // If only one coordinate, return it immediately
-                return [SafeGetBlock(coordinateManager.ToRelative(coordinates[0]))];
+                return [coordinateManager.ToAbsolute(SafeGetBlock(coordinateManager.ToRelative(coordinates[0])))];
             }
             // Cast to relative
             coordinates = coordinateManager.ToRelative(coordinates);
@@ -551,7 +551,7 @@ namespace Hex
             // If all blocks are in cache, return them, else generate blocks
             if (notInCache.Count == 0)
             {
-                return Array.ConvertAll(coordinates, coo => CacheSearch(coo));
+                return Array.ConvertAll(coordinates, coo => coordinateManager.ToAbsolute(CacheSearch(coo)));
             }
             else
             {
