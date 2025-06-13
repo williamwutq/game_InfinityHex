@@ -12,7 +12,9 @@ namespace Main
     static void Main(string[] args)
     {
       HexEngine hexEngine = new HexEngine();
-      Console.Write(hexEngine.GetASCIIArt());
+      Console.WriteLine(hexEngine.GetASCIIArt());
+      hexEngine.Move(HexLib.IPlus);
+      Console.WriteLine(hexEngine.GetASCIIArt());
     }
   }
 }

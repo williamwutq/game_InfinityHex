@@ -9,8 +9,8 @@ namespace Hex
     /// </summary>
     public class CoordinateManager
     {
-        private int moveLimit;
-        private int spaceLimit;
+        private readonly int moveLimit;
+        private readonly int spaceLimit;
         private Hex origin;
         private int moves;
 
@@ -133,7 +133,7 @@ namespace Hex
         private readonly int windowSize;
         private Block[] blockGrid;
 
-        public delegate void HandleFetchBlock(Hex[] coordinates);
+        public delegate Block[] HandleFetchBlock(Hex[] coordinates);
         private HandleFetchBlock? fetchBlockHandler;
         public void SetFetchBlockHandler(HandleFetchBlock fetchBlockHandler)
         {
@@ -163,7 +163,15 @@ namespace Hex
             // Already sorted by first I then K
 
             // fetch request
-            fetchBlockHandler?.Invoke(Array.ConvertAll(blockGrid, block => block.HexClone()));
+            Block[]? fetchedGrid = fetchBlockHandler?.Invoke(Array.ConvertAll(blockGrid, block => block.HexClone()));
+            if (fetchedGrid != null)
+            {
+                for (int index = 0; index < blockGrid.Length; index++)
+                {
+                    blockGrid[index].SetColor(fetchedGrid[index].Color());
+                    blockGrid[index].SetState(fetchedGrid[index].State());
+                }
+            }
         }
 
         public void Reset()
@@ -173,7 +181,15 @@ namespace Hex
                 block.SetColor(-1); block.SetState(false);
             }
             // fetch request
-            fetchBlockHandler?.Invoke(Array.ConvertAll(blockGrid, block => block.HexClone()));
+            Block[]? fetchedGrid = fetchBlockHandler?.Invoke(Array.ConvertAll(blockGrid, block => block.HexClone()));
+            if (fetchedGrid != null)
+            {
+                for (int index = 0; index < blockGrid.Length; index++)
+                {
+                    blockGrid[index].SetColor(fetchedGrid[index].Color());
+                    blockGrid[index].SetState(fetchedGrid[index].State());
+                }
+            }
         }
 
         private int Search(Hex coordinate, int start, int end)
@@ -226,21 +242,109 @@ namespace Hex
                     // Filter for "straight" hexes
                     if (coordinate.LineJ != lineJ || coordinate.J != j)
                     {
-                        sb.Append(" ");
+                        sb.Append(' ');
                     }
                     else try
                         {
                             Block block = GetBlock(coordinate);
-                            sb.Append(block.State() ? "X" : "O");
+                            if (block.State())
+                            {
+                                if (block.Color() == -2)
+                                {
+                                    sb.Append('X'); // Snake head
+                                }
+                                else if (block.Color() == -1)
+                                {
+                                    sb.Append('O'); // Unoccupied
+                                }
+                                else if (block.Color() < 10)
+                                {
+                                    sb.Append(block.Color().ToString("X")); // Occupied with color
+                                } else if (block.Color() < 36)
+                                {
+                                    sb.Append((char)('A' + block.Color() - 10)); // Occupied with color A-Z
+                                }
+                                else if (block.Color() < 62)
+                                {
+                                    sb.Append((char)('a' + block.Color() - 36)); // Occupied with color a-z
+                                }
+                                else if (block.Color() == 62)
+                                {
+                                    sb.Append('+'); // Occupied with color a-z
+                                }
+                                else if (block.Color() == 62)
+                                {
+                                    sb.Append('-'); // Occupied with color a-z
+                                }
+                                else
+                                {
+                                    sb.Append('?');
+                                }
+                            }
+                            else
+                            {
+                                sb.Append('O');
+                            }
                         }
                         catch (ArgumentOutOfRangeException)
                         {
-                            sb.Append(" ");
+                            sb.Append(' ');
                         }
                 }
                 sb.AppendLine();
             }
             return sb.ToString();
+        }
+
+        public void Move(Hex offset)
+        {
+            ArgumentNullException.ThrowIfNull(offset, "Input offset cannot be null");
+            if (offset.Equals(HexLib.Origin))
+            {
+                throw new ArgumentOutOfRangeException("No move recieved");
+            }
+            else if (offset.Equals(HexLib.IPlus))
+            {
+                int index = 0;
+                int i = 0;
+                while (i < windowSize)
+                {
+                    // The n th i line have windowSize + n blocks
+                    // Shift color and state to right
+                    for (int b = 0; b < windowSize + i; b++)
+                    {
+                        if (b != 0)
+                        {
+                            Block block = blockGrid[index + 1];
+                            Block prev = blockGrid[index];
+                            prev.SetColor(block.Color());
+                            prev.SetState(block.State());
+                        }
+                        index++;
+                    }
+                    i++;
+                }
+                i = 0;
+                while (i < windowSize - 1)
+                {
+                    // The n th i line have windowSize * 2 - 1 - n blocks
+                    // Shift color and state to right
+                    for (int b = 0; b < windowSize * 2 - 2 - i; b++)
+                    {
+                        if (b != 0)
+                        {
+                            if (index + 1 == blockGrid.Length) continue;
+                            Block block = blockGrid[index + 1];
+                            Block prev = blockGrid[index];
+                            prev.SetColor(block.Color());
+                            prev.SetState(block.State());
+                        }
+                        index++;
+                    }
+                    i++;
+                }
+            }
+            else throw new ArgumentOutOfRangeException("Move offset exceed 7-Block grid definition range");
         }
 
         public Block[] GetBlocks()
@@ -252,15 +356,19 @@ namespace Hex
 
     public class HexEngine
     {
-        private List<Block> cache;
-        private CoordinateManager coordinateManager;
-        private WindowManager windowManager;
+        private readonly List<Block> cache;
+        private readonly CoordinateManager coordinateManager;
+        private readonly WindowManager windowManager;
+        private readonly BlockGenerator blockGenerator;
         public HexEngine()
         {
+            cache = new List<Block>();
+            blockGenerator = new BlockGenerator();
             coordinateManager = new CoordinateManager();
             coordinateManager.SetCoordinateResetHandler(OnCoordinateReset);
             windowManager = new WindowManager(7);
-            cache = new List<Block>();
+            windowManager.SetFetchBlockHandler(OnFetchRequested);
+            windowManager.Reset();
         }
         public void Move(Hex offset)
         {
@@ -270,6 +378,8 @@ namespace Hex
                 Hex originalOrigin = coordinateManager.GetOrigin();
                 // Request coordinate move to the opposite direction
                 coordinateManager.Move(HexLib.Origin.Subtract(offset));
+                // Visual move
+                windowManager.Move(offset);
                 // Check head
                 Block head = SafeGetBlock(originalOrigin);
                 if (head.State())
@@ -301,11 +411,39 @@ namespace Hex
         {
             cache.ForEach(block => block.Subtract(offset));
         }
-        public void OnFetchRequested(Hex[] coordinates)
+        public Block[] OnFetchRequested(Hex[] coordinates)
         {
+            ArgumentNullException.ThrowIfNull(coordinates);
+            if (coordinates.Length == 0)
+            {
+                return [];
+            }
+            else if (coordinates.Length == 1)
+            {
+                // If only one coordinate, return it immediately
+                return [SafeGetBlock(coordinateManager.ToRelative(coordinates[0]))];
+            }
             // Cast to relative
             coordinates = coordinateManager.ToRelative(coordinates);
-
+            List<Hex> notInCache = new List<Hex>();
+            foreach (Hex coordinate in coordinates)
+            {
+                if (!cache.Any(block => block.HexClone().Equals(coordinate)))
+                {
+                    notInCache.Add(coordinate);
+                }
+            }
+            // If all blocks are in cache, return them, else generate blocks
+            if (notInCache.Count == 0)
+            {
+                return Array.ConvertAll(coordinates, coo => CacheSearch(coo));
+            }
+            else
+            {
+                OnGenerationRequested(notInCache.ToArray());
+            }
+            // Return all blocks in cache
+            return Array.ConvertAll(coordinates, coo => CacheSearch(coo));
         }
 
         public Block SafeGetBlock(Hex coordinate)
@@ -325,7 +463,7 @@ namespace Hex
         }
         private Block CacheSearch(Hex coordinate)
         {
-            List<Block> validList = (List<Block>)cache.Where(block => block.HexClone().Equals(coordinate));
+            List<Block> validList = cache.Where(block => block.HexClone().Equals(coordinate)).ToList();
             int count = validList.Count;
             if (count == 0)
             {
@@ -347,13 +485,23 @@ namespace Hex
         }
         private void resetEngine()
         {
-            cache = new List<Block>();
+            cache.Clear();
             coordinateManager.Reset();
             windowManager.Reset();
         }
         private void OnGenerationRequested(Hex[] coordinates)
         {
-
+            ArgumentNullException.ThrowIfNull(coordinates);
+            if (coordinates.Length == 0)
+            {
+                return;
+            } else if (coordinates.Length == 1) {
+                cache.Add(blockGenerator.GenerateBlock(coordinates[0]));
+            }
+            else
+            {
+                cache.AddRange(blockGenerator.GenerateBlocks(coordinates));
+            }
         }
         public String GetASCIIArt()
         {
@@ -367,10 +515,10 @@ namespace Hex
     /// </summary>
     public class BlockGenerator
     {
-        private int frequency;
-        private int colorRange;
-        private Random colorGenerator;
-        private Random stateGenerator;
+        private readonly int frequency;
+        private readonly int colorRange;
+        private readonly Random colorGenerator;
+        private readonly Random stateGenerator;
         /// <summary>
         /// Initializes a new instance of the <see cref="BlockGenerator"/> class.
         /// </summary>
