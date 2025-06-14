@@ -462,6 +462,8 @@ namespace Hex
             }
             else if (offset.Equals(HexLib.JMinus))
             {
+                Block[] artifacts = new Block[windowSize * 2 - 1];
+                int artifactIndex = 0;
                 void Shift(int start, int end)
                 {
                     Block prev = blockGrid[start];
@@ -481,57 +483,72 @@ namespace Hex
                     {
                         Shift(index, index += windowSize * 2 - 1);
                     }
-                    else if (debug)
+                    else
                     {
-                        // Debug: Mark artifact
-                        blockGrid[index].SetColor(-1);
+                        artifacts[artifactIndex] = blockGrid[index];
+                        artifactIndex++;
+                        if (debug)
+                        {
+                            // Debug: Mark artifact
+                            blockGrid[index].SetColor(-1);
+                        }
                         index += windowSize * 2 - 1;
                     }
                     for (int c = 0; c < windowSize - r - 2; c++)
                     {
                         Shift(index, index += 2 * windowSize - c - 2);
                     }
-                    if (debug && notLast)
+                    if (notLast)
                     {
-                        // Debug: Mark artifact
-                        blockGrid[index].SetColor(-1);
+                        artifacts[artifactIndex] = blockGrid[index];
+                        artifactIndex++;
+                        if (debug)
+                        {
+                            // Debug: Mark artifact
+                            blockGrid[index].SetColor(-1);
+                        }
                     }
                 }
-                for (int r = 0; r < windowSize; r++)
+                for (int r = 1; r < windowSize; r++)
                 {
                     int index = windowSize * r + r * (r - 1) / 2;
-                    Block prev;
-                    Block block;
-                    for (int c = 0; c < windowSize - r; c++)
+                    for (int c = 0; c < windowSize - r - 1; c++)
                     {
-                        prev = blockGrid[index];
-                        index += windowSize + c + r + 1;
-                        block = blockGrid[index];
-                        prev.SetColor(block.Color());
-                        prev.SetState(block.State());
+                        Shift(index, index += windowSize + c + r + 1);
                     }
-                    index--; // This is necessary
+                    Shift(index, index += 2 * windowSize - 1);
                     for (int c = 0; c < windowSize - 2; c++)
                     {
-                        prev = blockGrid[index];
-                        index += 2 * windowSize - c - 2;
-                        block = blockGrid[index];
-                        prev.SetColor(block.Color());
-                        prev.SetState(block.State());
+                        Shift(index, index += 2 * windowSize - c - 2);
                     }
+                    artifacts[artifactIndex] = blockGrid[index];
+                    artifactIndex++;
                     if (debug)
                     {
                         // Debug: Mark artifact
                         blockGrid[index].SetColor(-1);
                     }
                 }
-                // Test
-                Block origin = blockGrid[blockGrid.Length / 2];
-                origin.SetColor(63);
-                origin.SetState(true);
-                Block shifted = GetBlock(offset);
-                shifted.SetColor(62);
-                shifted.SetState(true);
+                // Fetch request
+                Block[]? fetchedGrid = fetchBlockHandler?.Invoke(Array.ConvertAll(artifacts, block => block.HexClone()));
+                if (fetchedGrid != null && fetchedGrid.Length == windowSize * 2 - 1)
+                {
+                    int i_artifactIndex = 0;
+                    int wm = windowSize - 1;
+                    int ws = 3 * windowSize * wm;
+                    for (int r = 0; r < windowSize - 1; r++)
+                    {
+                        blockGrid[ws - r * wm - r * (r + 1) / 2] = fetchedGrid[i_artifactIndex];
+                        i_artifactIndex++;
+                    }
+                    blockGrid[windowSize * windowSize - 1 + windowSize * wm / 2] = fetchedGrid[i_artifactIndex];
+                    i_artifactIndex++;
+                    for (int r = 1; r < windowSize; r++)
+                    {
+                        blockGrid[ws - r] = fetchedGrid[i_artifactIndex];
+                        i_artifactIndex++;
+                    }
+                }
             }
             else throw new ArgumentOutOfRangeException("Move offset exceed 7-Block grid definition range");
         }
