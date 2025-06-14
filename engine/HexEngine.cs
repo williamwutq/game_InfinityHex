@@ -561,21 +561,17 @@ namespace Hex
                 }
                 for (int r = 0; r < windowSize; r++)
                 {
-                    int index = r + windowSize * 3 - 2;
-                    for (int c = 0; c < windowSize - 1; c++)
-                    {
-                        index += windowSize + c;
-                    }
-                    for (int c = 0; c < windowSize - r - 2; c++)
-                    {
-                        index += 2 * windowSize - c - 2;
-                    }
-                    Console.WriteLine(index);
+                    Boolean notLast = r != windowSize - 1;
+                    int wm = windowSize - 1;
+                    int index = 3 * windowSize * wm - r * wm - r * (r + 1) / 2;
                     for (int c = windowSize - r - 3; c >= 0; c--)
                     {
                         Shift(index, index -= 2 * windowSize - c - 2);
                     }
-                    Shift(index, index -= windowSize * 2 - 1);
+                    if (notLast)
+                    {
+                        Shift(index, index -= windowSize * 2 - 1);
+                    }
                     for (int c = windowSize - 2; c >= 0; c--)
                     {
                         Shift(index, index -= windowSize + c + 1);
