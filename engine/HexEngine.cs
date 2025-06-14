@@ -550,6 +550,61 @@ namespace Hex
                     }
                 }
             }
+            else if (offset.Equals(HexLib.JPlus))
+            {
+                void Shift(int start, int end)
+                {
+                    Block next = blockGrid[end];
+                    Block block = blockGrid[start];
+                    block.SetColor(next.Color());
+                    block.SetState(next.State());
+                }
+                for (int r = 0; r < windowSize; r++)
+                {
+                    int index = r + windowSize * 3 - 2;
+                    for (int c = 0; c < windowSize - 1; c++)
+                    {
+                        index += windowSize + c;
+                    }
+                    for (int c = 0; c < windowSize - r - 2; c++)
+                    {
+                        index += 2 * windowSize - c - 2;
+                    }
+                    Console.WriteLine(index);
+                    for (int c = windowSize - r - 3; c >= 0; c--)
+                    {
+                        Shift(index, index -= 2 * windowSize - c - 2);
+                    }
+                    Shift(index, index -= windowSize * 2 - 1);
+                    for (int c = windowSize - 2; c >= 0; c--)
+                    {
+                        Shift(index, index -= windowSize + c + 1);
+                    }
+                    if (debug)
+                    {
+                        // Debug: Mark artifact
+                        blockGrid[index].SetColor(-1);
+                    }
+                }
+                for (int r = 1; r < windowSize; r++)
+                {
+                    int index = 3 * windowSize * (windowSize - 1) - r;
+                    for (int c = windowSize - 2 - 1; c >= 0; c--)
+                    {
+                        Shift(index, index -= 2 * windowSize - c - 2);
+                    }
+                    Shift(index, index -= 2 * windowSize - 1);
+                    for (int c = windowSize - r - 2; c >= 0; c--)
+                    {
+                        Shift(index, index -= windowSize + c + r + 1);
+                    }
+                    if (debug)
+                    {
+                        // Debug: Mark artifact
+                        blockGrid[index].SetColor(-1);
+                    }
+                }
+            }
             else throw new ArgumentOutOfRangeException("Move offset exceed 7-Block grid definition range");
         }
 
