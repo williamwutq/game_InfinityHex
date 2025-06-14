@@ -597,7 +597,7 @@ namespace Hex
                 // Save original origin
                 Hex originalOrigin = coordinateManager.GetOrigin();
                 // Request coordinate move to the opposite direction
-                coordinateManager.Move(HexLib.Origin.Subtract(offset));
+                coordinateManager.Move(HexLib.Negate(offset));
                 // Visual move
                 windowManager.Move(offset);
                 // Check head
