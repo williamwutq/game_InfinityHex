@@ -60,7 +60,7 @@ namespace Hex
                 return KPlus;
             } else if (index == 6) {
                 return JPlus;
-            } else throw new IndexOutOfRangeException($"Index {index} out bounds for range 7");
+            } else throw new System.IndexOutOfRangeException($"Index {index} out bounds for range 7");
         }
         /// <summary>
         /// Gets an array of all hexes in the standard 7-Block grid in the defined sequence.
@@ -81,7 +81,7 @@ namespace Hex
         /// <exception cref="ArgumentOutOfRangeException">Thrown when the coordinate is outside of the standard 7-Block grid.</exception>
         public static Hex Negate(Hex sevenBlockHex)
         {
-            ArgumentNullException.ThrowIfNull(sevenBlockHex);
+            System.ArgumentNullException.ThrowIfNull(sevenBlockHex);
             if (sevenBlockHex.Equals(Origin)) {
                 return Origin;
             } else if (sevenBlockHex.Equals(IMinus)) {
@@ -96,7 +96,7 @@ namespace Hex
                 return KPlus;
             } else if (sevenBlockHex.Equals(KPlus)) {
                 return KMinus;
-            } else throw new ArgumentOutOfRangeException($"Hex coordinate {sevenBlockHex} exceed 7-Block grid definition range");
+            } else throw new System.ArgumentOutOfRangeException($"Hex coordinate {sevenBlockHex} exceed 7-Block grid definition range");
         }
     }
 }
