@@ -90,9 +90,9 @@ namespace Hex
     /// <since>0.1</since>
     /// <author>William Wu</author>
     /// <version>0.1</version>
-    public class Hex : ICloneable
+    public class Hex : System.ICloneable
     {
-        private readonly double halfSinOf60 = Math.Sqrt(3) / 4;
+        private readonly double halfSinOf60 = System.Math.Sqrt(3) / 4;
         private int x;
         private int y;
         /// <summary>
@@ -439,7 +439,7 @@ namespace Hex
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="other"/> is null.</exception>
         public virtual Hex Add(Hex other)
         {
-            ArgumentNullException.ThrowIfNull(other);
+            System.ArgumentNullException.ThrowIfNull(other);
             return new Hex(x + other.x, y + other.y);
         }
         /// <summary>
@@ -450,7 +450,7 @@ namespace Hex
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="other"/> is null.</exception>
         public virtual Hex Subtract(Hex other)
         {
-            ArgumentNullException.ThrowIfNull(other);
+            System.ArgumentNullException.ThrowIfNull(other);
             return new Hex(x - other.x, y - other.y);
         }
         /// <summary>
@@ -460,7 +460,7 @@ namespace Hex
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="other"/> is null.</exception>
         public void Set(Hex other)
         {
-            ArgumentNullException.ThrowIfNull(other);
+            System.ArgumentNullException.ThrowIfNull(other);
             x = other.x;
             y = other.y;
         }
@@ -484,7 +484,7 @@ namespace Hex
         /// <returns>A hash code for the current object.</returns>
         public override int GetHashCode()
         {
-            return HashCode.Combine(x, y);
+            return System.HashCode.Combine(x, y);
         }
         /// <summary>
         /// Create a clone of this <see cref="Hex"/> object, with its hexagonal coordinates copied.

@@ -3,6 +3,7 @@
  * Run main
  */
 
+using System;
 using Hex;
 
 namespace Main

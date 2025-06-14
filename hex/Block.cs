@@ -98,7 +98,7 @@ namespace Hex
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="hex"/> passed in is null.</exception>
         public Block(Hex hex) : base(hex.I, hex.K)
         {
-            ArgumentNullException.ThrowIfNull(hex);
+            System.ArgumentNullException.ThrowIfNull(hex);
             this.state = false;
             this.color = -1;
         }
@@ -110,7 +110,7 @@ namespace Hex
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="hex"/> passed in is null.</exception>
         public Block(Hex hex, int color) : base(hex.I, hex.K)
         {
-            ArgumentNullException.ThrowIfNull(hex);
+            System.ArgumentNullException.ThrowIfNull(hex);
             this.state = false;
             this.color = color;
         }
@@ -122,7 +122,7 @@ namespace Hex
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="hex"/> passed in is null.</exception>
         public Block(Hex hex, bool state) : base(hex.I, hex.K)
         {
-            ArgumentNullException.ThrowIfNull(hex);
+            System.ArgumentNullException.ThrowIfNull(hex);
             if (state)
             {
                 this.color = -2;
@@ -142,7 +142,7 @@ namespace Hex
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="hex"/> passed in is null.</exception>
         public Block(Hex hex, int color, bool state) : base(hex.I, hex.K)
         {
-            ArgumentNullException.ThrowIfNull(hex);
+            System.ArgumentNullException.ThrowIfNull(hex);
             this.state = state;
             this.color = color;
         }
@@ -272,7 +272,7 @@ namespace Hex
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="other"/> is null.</exception>
         public override Block Add(Hex other)
         {
-            ArgumentNullException.ThrowIfNull(other);
+            System.ArgumentNullException.ThrowIfNull(other);
             return new Block(base.Add(other), this.color, this.state);
         }
         /// <summary>
@@ -283,7 +283,7 @@ namespace Hex
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="other"/> is null.</exception>
         public override Block Subtract(Hex other)
         {
-            ArgumentNullException.ThrowIfNull(other);
+            System.ArgumentNullException.ThrowIfNull(other);
             return new Block(base.Add(other), this.color, this.state);
         }
     }
