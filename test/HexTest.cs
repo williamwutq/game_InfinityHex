@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Hex;
+using System;
 
 namespace Hex.Tests
 {
