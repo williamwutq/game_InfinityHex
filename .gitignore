@@ -1,7 +1,11 @@
 *.csproj
 *.sln
+*.code-workspace
+*.log
 */*.csproj
 */*.sln
+*/*.code-workspace
+*/*.log
 *.dll
 
 obj/*
