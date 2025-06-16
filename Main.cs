@@ -12,6 +12,9 @@ namespace Main
   {
     static void Main(string[] args)
     {
+#if DEBUG
+      Console.WriteLine("Program Test Start");
+#endif
       HexEngine hexEngine = new HexEngine();
       hexEngine.GetWindowManager().TestPopulate();
       Console.WriteLine(hexEngine.GetASCIIArt());

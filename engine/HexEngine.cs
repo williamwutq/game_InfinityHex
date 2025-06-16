@@ -173,7 +173,6 @@ namespace Hex
 
     public class WindowManager
     {
-        const bool debug = true;
         private readonly int windowSize;
         private Block[] blockGrid;
 
@@ -369,11 +368,9 @@ namespace Hex
                             // Mark artifact
                             artifacts[artifactIndex] = blockGrid[index - 1];
                             artifactIndex++;
-                            if (debug)
-                            {
-                                // Debug: Mark artifact
-                                blockGrid[index - 1].SetColor(-1);
-                            }
+#if DEBUG
+                            blockGrid[index - 1].SetColor(-1);
+#endif
                         }
                         index++;
                     }
@@ -381,8 +378,9 @@ namespace Hex
                 for (int i = 0; i < windowSize - 1; i++) ProcessRow(windowSize + i);
                 for (int i = windowSize - 1; i >= 0; i--) ProcessRow(windowSize + i);
                 artifacts[artifactIndex] = blockGrid[index - 1];
-                // Debug: mark artifact
-                if (debug) blockGrid[index - 1].SetColor(-1);
+#if DEBUG
+                blockGrid[index - 1].SetColor(-1);
+#endif
                 // Fetch request
                 Block[]? fetchedGrid = fetchBlockHandler?.Invoke(Array.ConvertAll(artifacts, block => block.HexClone()));
                 if (fetchedGrid != null && fetchedGrid.Length == windowSize * 2 - 1)
@@ -429,19 +427,18 @@ namespace Hex
                             // Mark artifact
                             artifacts[artifactIndex] = blockGrid[index];
                             artifactIndex++;
-                            if (debug)
-                            {
-                                // Debug: Mark artifact
-                                blockGrid[index].SetColor(-1);
-                            }
+#if DEBUG
+                            blockGrid[index].SetColor(-1);
+#endif
                         }
                         index--;
                     }
                 }
                 for (int i = 0; i < windowSize - 1; i++) ProcessRow(windowSize + i);
                 for (int i = windowSize - 1; i >= 0; i--) ProcessRow(windowSize + i);
-                // Debug: Mark artifact
-                if (debug) blockGrid[0].SetColor(-1);
+#if DEBUG
+                blockGrid[0].SetColor(-1);
+#endif
                 // Fetch request
                 Block[]? fetchedGrid = fetchBlockHandler?.Invoke(Array.ConvertAll(artifacts, block => block.HexClone()));
                 if (fetchedGrid != null && fetchedGrid.Length == windowSize * 2 - 1)
@@ -490,11 +487,9 @@ namespace Hex
                     {
                         artifacts[artifactIndex] = blockGrid[index];
                         artifactIndex++;
-                        if (debug)
-                        {
-                            // Debug: Mark artifact
-                            blockGrid[index].SetColor(-1);
-                        }
+#if DEBUG
+                        blockGrid[index].SetColor(-1);
+#endif
                         index += windowSize * 2 - 1;
                     }
                     for (int c = 0; c < windowSize - r - 2; c++)
@@ -505,11 +500,9 @@ namespace Hex
                     {
                         artifacts[artifactIndex] = blockGrid[index];
                         artifactIndex++;
-                        if (debug)
-                        {
-                            // Debug: Mark artifact
-                            blockGrid[index].SetColor(-1);
-                        }
+#if DEBUG
+                        blockGrid[index].SetColor(-1);
+#endif
                     }
                 }
                 for (int r = 1; r < windowSize; r++)
@@ -526,11 +519,9 @@ namespace Hex
                     }
                     artifacts[artifactIndex] = blockGrid[index];
                     artifactIndex++;
-                    if (debug)
-                    {
-                        // Debug: Mark artifact
-                        blockGrid[index].SetColor(-1);
-                    }
+#if DEBUG
+                    blockGrid[index].SetColor(-1);
+#endif
                 }
                 // Fetch request
                 Block[]? fetchedGrid = fetchBlockHandler?.Invoke(Array.ConvertAll(artifacts, block => block.HexClone()));
@@ -555,6 +546,8 @@ namespace Hex
             }
             else if (offset.Equals(HexLib.JPlus))
             {
+                Block[] artifacts = new Block[windowSize * 2 - 1];
+                int artifactIndex = 0;
                 void Shift(int start, int end)
                 {
                     Block next = blockGrid[end];
@@ -579,11 +572,11 @@ namespace Hex
                     {
                         Shift(index, index -= windowSize + c + 1);
                     }
-                    if (debug)
-                    {
-                        // Debug: Mark artifact
-                        blockGrid[index].SetColor(-1);
-                    }
+                    artifacts[artifactIndex] = blockGrid[index];
+                    artifactIndex++;
+#if DEBUG
+                    blockGrid[index].SetColor(-1);
+#endif
                 }
                 for (int r = 1; r < windowSize; r++)
                 {
@@ -597,11 +590,17 @@ namespace Hex
                     {
                         Shift(index, index -= windowSize + c + r + 1);
                     }
-                    if (debug)
-                    {
-                        // Debug: Mark artifact
-                        blockGrid[index].SetColor(-1);
-                    }
+                    artifacts[artifactIndex] = blockGrid[index];
+                    artifactIndex++;
+#if DEBUG
+                    blockGrid[index].SetColor(-1);
+#endif
+                }
+                // Fetch request
+                Block[]? fetchedGrid = fetchBlockHandler?.Invoke(Array.ConvertAll(artifacts, block => block.HexClone()));
+                if (fetchedGrid != null && fetchedGrid.Length == windowSize * 2 - 1)
+                {
+                    
                 }
             }
             else throw new ArgumentOutOfRangeException("Move offset exceed 7-Block grid definition range");
