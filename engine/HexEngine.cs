@@ -616,6 +616,23 @@ namespace Hex
                     }
                 }
             }
+            else if (offset.Equals(HexLib.KMinus))
+            {
+                Block[] artifacts = new Block[windowSize * 2 - 1];
+                int artifactIndex = 0;
+                void Shift(int start, int end)
+                {
+                    Block prev = blockGrid[start];
+                    Block block = blockGrid[end];
+                    prev.SetColor(block.Color());
+                    prev.SetState(block.State());
+                }
+                
+
+                // Test coloring
+                blockGrid[blockGrid.Length / 2].SetColor(63);
+                GetBlock(offset).SetColor(62);
+            }
             else throw new ArgumentOutOfRangeException("Move offset exceed 7-Block grid definition range");
         }
 

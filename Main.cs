@@ -18,7 +18,7 @@ namespace Main
       HexEngine hexEngine = new HexEngine();
       hexEngine.GetWindowManager().TestPopulate();
       Console.WriteLine(hexEngine.GetASCIIArt());
-      hexEngine.Move(HexLib.JPlus);
+      hexEngine.Move(HexLib.KMinus);
       Console.WriteLine(hexEngine.GetASCIIArt());
     }
   }
