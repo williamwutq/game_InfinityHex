@@ -728,6 +728,23 @@ namespace Hex
                     blockGrid[index].SetColor(-1);
 #endif
                 }
+                // Fetch request
+                Block[]? fetchedGrid = fetchBlockHandler?.Invoke(Array.ConvertAll(artifacts, block => block.HexClone()));
+                if (fetchedGrid != null && fetchedGrid.Length == windowSize * 2 - 1)
+                {
+                    int i_artifactIndex = 0;
+                    while (i_artifactIndex < windowSize)
+                    {
+                        blockGrid[i_artifactIndex] = fetchedGrid[i_artifactIndex];
+                        i_artifactIndex++;
+                    }
+                    for (int r = 1; r < windowSize; r++)
+                    {
+                        int i_index = windowSize * (r + 1) + r * (r + 1) / 2 - 1;
+                        blockGrid[i_index] = fetchedGrid[i_artifactIndex];
+                        i_artifactIndex++;
+                    }
+                }
             }
             else throw new ArgumentOutOfRangeException("Move offset exceed 7-Block grid definition range");
         }
