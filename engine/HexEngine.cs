@@ -642,26 +642,23 @@ namespace Hex
                     blockGrid[index].SetColor(-1);
 #endif
                 }
-
-                // Test coloring
-                blockGrid[blockGrid.Length / 2].SetColor(63);
-                GetBlock(offset).SetColor(62);
-/*
-Anticipated:
-      O O O O O O O
-     v 6 I T d m u O
-    j w 7 J U e n v O
-   Y k x 8 K V f o w O
-  O Z l y 9 L W g p x O
- F P a m z A M X h q y O
-7 G Q b n + B N Y i r z O
- 8 H R c o - C O Z j s +
-  9 I S d p 0 D P a k t
-   A J T e q 1 E Q b l
-    B K U f r 2 F R c
-     C L V g s 3 G S
-      D M W h t 4 H
-*/
+                for (int r = 1; r < windowSize; r++)
+                {
+                    int index = windowSize * (r + 1) + r * (r + 1) / 2 - 1;
+                    for (int c = r; c < windowSize - 1; c++)
+                    {
+                        Shift(index, index += windowSize + c);
+                    }
+                    for (int c = windowSize - 2; c >= 0; c--)
+                    {
+                        Shift(index, index += windowSize + c);
+                    }
+                    artifacts[artifactIndex] = blockGrid[index];
+                    artifactIndex++;
+#if DEBUG
+                    blockGrid[index].SetColor(-1);
+#endif
+                }
             }
             else throw new ArgumentOutOfRangeException("Move offset exceed 7-Block grid definition range");
         }
