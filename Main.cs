@@ -4,6 +4,7 @@
  */
 
 using System;
+using System.Threading;
 using Hex;
 
 namespace Main
@@ -16,10 +17,15 @@ namespace Main
       Console.WriteLine("Program Test Start");
 #endif
       HexEngine hexEngine = new HexEngine();
-      hexEngine.GetWindowManager().TestPopulate();
-      Console.WriteLine(hexEngine.GetASCIIArt());
-      hexEngine.Move(HexLib.KPlus);
-      Console.WriteLine(hexEngine.GetASCIIArt());
+      Random random = new Random();
+      while (true)
+      {
+        Thread.Sleep(200);
+        Console.Clear();
+        Console.SetCursorPosition(0, 0);
+        Console.WriteLine(hexEngine.GetASCIIArt());
+        hexEngine.Move(HexLib.CircularSixBlock(random.Next(6)));
+      }
     }
   }
 }
