@@ -217,6 +217,8 @@ namespace Hex
             }
         }
 
+        public int GetWindowSize() => windowSize;
+
         public void Reset()
         {
             foreach (Block block in blockGrid)
@@ -349,7 +351,7 @@ namespace Hex
             }
             else if (offset.Equals(HexLib.IMinus))
             {
-                Block[] artifacts = new Block[windowSize * 2 - 1];
+                Block[] artifacts = new Block[windowSize * 2];
                 int artifactIndex = 0;
                 int index = 0;
                 void ProcessRow(int rowLength)
@@ -381,9 +383,10 @@ namespace Hex
 #if DEBUG
                 blockGrid[index - 1].SetColor(-1);
 #endif
+                artifacts[artifactIndex + 1] = blockGrid[blockGrid.Length / 2];
                 // Fetch request
                 Block[]? fetchedGrid = fetchBlockHandler?.Invoke(Array.ConvertAll(artifacts, block => block.HexClone()));
-                if (fetchedGrid != null && fetchedGrid.Length == windowSize * 2 - 1)
+                if (fetchedGrid != null && fetchedGrid.Length == windowSize * 2)
                 {
                     int i_index = -1;
                     int i_artifactIndex = 0;
@@ -403,11 +406,12 @@ namespace Hex
                         i_index += (windowSize + i);
                     }
                     blockGrid[i_index] = fetchedGrid[i_artifactIndex];
+                    blockGrid[blockGrid.Length / 2] = fetchedGrid[i_artifactIndex + 1];
                 }
             }
             else if (offset.Equals(HexLib.IPlus))
             {
-                Block[] artifacts = new Block[windowSize * 2 - 1];
+                Block[] artifacts = new Block[windowSize * 2];
                 artifacts[0] = blockGrid[0];
                 int index = blockGrid.Length - 1;
                 int artifactIndex = 0;
@@ -439,9 +443,10 @@ namespace Hex
 #if DEBUG
                 blockGrid[0].SetColor(-1);
 #endif
+                artifacts[artifactIndex] = blockGrid[blockGrid.Length / 2];
                 // Fetch request
                 Block[]? fetchedGrid = fetchBlockHandler?.Invoke(Array.ConvertAll(artifacts, block => block.HexClone()));
-                if (fetchedGrid != null && fetchedGrid.Length == windowSize * 2 - 1)
+                if (fetchedGrid != null && fetchedGrid.Length == windowSize * 2)
                 {
                     blockGrid[0] = fetchedGrid[0];
                     int i_index = blockGrid.Length - 1;
@@ -458,6 +463,7 @@ namespace Hex
                         blockGrid[i_index + 1] = fetchedGrid[i_artifactIndex];
                         i_artifactIndex++;
                     }
+                    blockGrid[blockGrid.Length / 2] = fetchedGrid[i_artifactIndex];
                 }
             }
             else if (offset.Equals(HexLib.JMinus))
@@ -775,6 +781,7 @@ namespace Hex
         public HexEngine()
         {
             cache = new List<Block>();
+            cache.Add(new Block(new Hex(), -2, true));
             blockGenerator = new BlockGenerator();
             coordinateManager = new CoordinateManager();
             coordinateManager.SetCoordinateResetHandler(OnCoordinateReset);
@@ -860,6 +867,78 @@ namespace Hex
             }
             // Return all blocks in cache
             return Array.ConvertAll(coordinates, coo => coordinateManager.ToAbsolute(CacheSearch(coo)));
+        }
+
+        public String GetASCIIArt(int windowSize)
+        {
+            if (windowSize == 0)
+            {
+                return GetASCIIArt(windowManager.GetWindowSize());
+            }
+            if (windowSize < 1)
+            {
+                return GetASCIIArt();
+            }
+            StringBuilder sb = new StringBuilder();
+            int size = windowSize - 1;
+            for (int lineJ = -size; lineJ < windowSize; lineJ++)
+            {
+                for (int j = -size * 2; j <= size * 2; j++)
+                {
+                    // Calculate hex coordinate
+                    Hex coordinate = new Hex((j + 3 * lineJ) / 2, (j - 3 * lineJ) / 2);
+                    // Filter for "straight" hexes
+                    if (coordinate.LineJ != lineJ || coordinate.J != j || !coordinate.InRange(windowSize))
+                    {
+                        sb.Append(' ');
+                    }
+                    else
+                    {
+                        Block block = SafeGetBlock(coordinateManager.ToAbsolute(coordinate));
+                        if (block.State())
+                        {
+                            if (block.Color() == -2)
+                            {
+                                sb.Append('X'); // Snake head
+                            }
+                            else if (block.Color() == -1)
+                            {
+                                sb.Append('O'); // Unoccupied
+                            }
+                            else if (block.Color() < 10)
+                            {
+                                sb.Append(block.Color().ToString("X")); // Occupied with color
+                            }
+                            else if (block.Color() < 36)
+                            {
+                                sb.Append((char)('A' + block.Color() - 10)); // Occupied with color A-Z
+                            }
+                            else if (block.Color() < 62)
+                            {
+                                sb.Append((char)('a' + block.Color() - 36)); // Occupied with color a-z
+                            }
+                            else if (block.Color() == 62)
+                            {
+                                sb.Append('+'); // Occupied with color +
+                            }
+                            else if (block.Color() == 63)
+                            {
+                                sb.Append('-'); // Occupied with color -
+                            }
+                            else
+                            {
+                                sb.Append('?');
+                            }
+                        }
+                        else
+                        {
+                            sb.Append('O');
+                        }
+                    }
+                }
+                sb.AppendLine();
+            }
+            return sb.ToString();
         }
 
         public Block SafeGetBlock(Hex coordinate)
