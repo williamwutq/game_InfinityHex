@@ -797,14 +797,12 @@ namespace Hex
         {
             if (offset.InRange(2))
             {
-                // Save original origin
-                Hex originalOrigin = coordinateManager.GetOrigin();
                 // Request coordinate move to the opposite direction
                 coordinateManager.Move(HexLib.Negate(offset));
                 // Visual move
                 windowManager.Move(offset);
                 // Check head
-                Block head = SafeGetBlock(originalOrigin);
+                Block head = SafeGetBlock(coordinateManager.GetOrigin());
                 if (head.State())
                 {
                     // If head is occupied, check the type of occupation
