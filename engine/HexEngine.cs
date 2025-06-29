@@ -684,6 +684,9 @@ namespace Hex
             {
                 Block[] artifacts = new Block[windowSize * 2 - 1];
                 int artifactIndex = 0;
+                int wm = windowSize - 1;
+                int ws = 3 * windowSize * wm - wm;
+                int wb = wm * wm + wm * windowSize / 2;
                 void Shift(int start, int end)
                 {
                     Block next = blockGrid[end];
@@ -693,15 +696,7 @@ namespace Hex
                 }
                 for (int r = 0; r < windowSize; r++)
                 {
-                    int index = r;
-                    for (int c = 0; c < windowSize - 1; c++)
-                    {
-                        index += windowSize + c;
-                    }
-                    for (int c = 0; c < r; c++)
-                    {
-                        index += 2 * windowSize - c - 2;
-                    }
+                    int index = wb + 2 * windowSize * r - (r + 1) * r / 2;
                     for (int c = r; c > 0; c--)
                     {
                         Shift(index, index -= 2 * windowSize - c - 1);
@@ -718,15 +713,7 @@ namespace Hex
                 }
                 for (int r = 1; r < windowSize; r++)
                 {
-                    int index = windowSize * (r + 1) + r * (r + 1) / 2 - 1;
-                    for (int c = r; c < windowSize - 1; c++)
-                    {
-                        index += windowSize + c;
-                    }
-                    for (int c = windowSize - 2; c >= 0; c--)
-                    {
-                        index += windowSize + c;
-                    }
+                    int index = ws + r;
                     for (int c = 0; c < windowSize - 1; c++)
                     {
                         Shift(index, index -= windowSize + c);
