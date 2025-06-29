@@ -2,7 +2,7 @@
 namespace Hex
 {
     /// <summary>
-    /// A utility class to <see cref="Hex"/> for working with hexagonal grid coordinates in a standard 7-Block grid.
+    /// A utility class to <see cref="Hex"/> for working with hexagonal grid coordinates in a standard 7-Block grid or a circular 6-Block grid.
     /// The grid uses a line coordinate system {I, J, K} with a radius of 2 centered at the origin (0, 0, 0).
     /// </summary>
     public static class HexLib
@@ -63,12 +63,44 @@ namespace Hex
             } else throw new System.IndexOutOfRangeException($"Index {index} out bounds for range 7");
         }
         /// <summary>
+        /// Retrieves a hex from the circular 6-Block grid by index.
+        /// The circular 6-Block grid is defined as a sequence of hexes at the following line coordinates {I, J, K}:
+        /// (0, 1, 1), (1, 0, 1), (1, -1, 0), (0, -1, -1), (-1, 0, -1), (-1, 1, 0).
+        /// This represents a grid of radius 2 centered at the origin (0, 0, 0), but without the origin.
+        /// </summary>
+        /// <param name="index">The index of the hex in the 6-Block grid (0 to 5).</param>
+        /// <returns>The hex at the specified index.</returns>
+        /// <exception cref="IndexOutOfRangeException">Thrown when the index is outside the range [0, 5].</exception>
+        public static Hex CircularSixBlock(int index)
+        {
+            if (index == 0) {
+                return IPlus;
+            } else if (index == 1) {
+                return JPlus;
+            } else if (index == 2) {
+                return KPlus;
+            } else if (index == 3) {
+                return IMinus;
+            } else if (index == 4) {
+                return JMinus;
+            } else if (index == 5) {
+                return KMinus;
+            } else throw new System.IndexOutOfRangeException($"Index {index} out bounds for range 6");
+        }
+        /// <summary>
         /// Gets an array of all hexes in the standard 7-Block grid in the defined sequence.
         /// The standard 7-Block grid is defined as a sequence of hexes at the following line coordinates {I, J, K}:
         /// (-1, 0, -1), (-1, 1, 0), (0, -1, -1), (0, 0, 0), (0, 1, 1), (1, -1, 0), (1, 0, 1).
         /// This represents a grid of radius 2 centered at the origin (0, 0, 0).
         /// </summary>
         public static Hex[] SevenBlockArr => [JMinus, KMinus, IMinus, Origin, IPlus, KPlus, JPlus];
+        /// <summary>
+        /// Gets an array of all hexes in the circular 6-Block grid in the defined sequence.
+        /// The circular 6-Block grid is defined as a sequence of hexes at the following line coordinates {I, J, K}:
+        /// (0, 1, 1), (1, 0, 1), (1, -1, 0), (0, -1, -1), (-1, 0, -1), (-1, 1, 0).
+        /// This represents a grid of radius 2 centered at the origin (0, 0, 0), but without the origin.
+        /// </summary>
+        public static Hex[] CircularSixBlockArr => [IPlus, JPlus, KPlus, IMinus, JMinus, KMinus];
         /// <summary>
         /// Negate a Hex coordinate to its opposite peer. This method is perfered compare to new Hex().Subtract(hex).
         /// This method only works for coordinates in the standard 7-Block grid, otherwise an <see cref="ArgumentOutOfRangeException"/> 
@@ -82,21 +114,35 @@ namespace Hex
         public static Hex Negate(Hex sevenBlockHex)
         {
             System.ArgumentNullException.ThrowIfNull(sevenBlockHex);
-            if (sevenBlockHex.Equals(Origin)) {
+            if (sevenBlockHex.Equals(Origin))
+            {
                 return Origin;
-            } else if (sevenBlockHex.Equals(IMinus)) {
+            }
+            else if (sevenBlockHex.Equals(IMinus))
+            {
                 return IPlus;
-            } else if (sevenBlockHex.Equals(IPlus)) {
+            }
+            else if (sevenBlockHex.Equals(IPlus))
+            {
                 return IMinus;
-            } else if (sevenBlockHex.Equals(JMinus)) {
+            }
+            else if (sevenBlockHex.Equals(JMinus))
+            {
                 return JPlus;
-            } else if (sevenBlockHex.Equals(JPlus)) {
+            }
+            else if (sevenBlockHex.Equals(JPlus))
+            {
                 return JMinus;
-            } else if (sevenBlockHex.Equals(KMinus)) {
+            }
+            else if (sevenBlockHex.Equals(KMinus))
+            {
                 return KPlus;
-            } else if (sevenBlockHex.Equals(KPlus)) {
+            }
+            else if (sevenBlockHex.Equals(KPlus))
+            {
                 return KMinus;
-            } else throw new System.ArgumentOutOfRangeException($"Hex coordinate {sevenBlockHex} exceed 7-Block grid definition range");
+            }
+            else throw new System.ArgumentOutOfRangeException($"Hex coordinate {sevenBlockHex} exceed 7-Block grid definition range");
         }
     }
 }
