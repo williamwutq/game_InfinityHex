@@ -684,6 +684,63 @@ namespace Hex
             {
                 Block[] artifacts = new Block[windowSize * 2 - 1];
                 int artifactIndex = 0;
+                void Shift(int start, int end)
+                {
+                    Block next = blockGrid[end];
+                    Block block = blockGrid[start];
+                    block.SetColor(next.Color());
+                    block.SetState(next.State());
+                }
+                for (int r = 0; r < windowSize; r++)
+                {
+                    int index = r;
+                    for (int c = 0; c < windowSize - 1; c++)
+                    {
+                        index += windowSize + c;
+                    }
+                    for (int c = 0; c < r; c++)
+                    {
+                        index += 2 * windowSize - c - 2;
+                    }
+                    for (int c = r; c > 0; c--)
+                    {
+                        Shift(index, index -= 2 * windowSize - c - 1);
+                    }
+                    for (int c = windowSize - 2; c >= 0; c--)
+                    {
+                        Shift(index, index -= windowSize + c);
+                    }
+                    artifacts[artifactIndex] = blockGrid[index];
+                    artifactIndex++;
+#if DEBUG
+                    blockGrid[index].SetColor(-1);
+#endif
+                }
+                for (int r = 1; r < windowSize; r++)
+                {
+                    int index = windowSize * (r + 1) + r * (r + 1) / 2 - 1;
+                    for (int c = r; c < windowSize - 1; c++)
+                    {
+                        index += windowSize + c;
+                    }
+                    for (int c = windowSize - 2; c >= 0; c--)
+                    {
+                        index += windowSize + c;
+                    }
+                    for (int c = 0; c < windowSize - 1; c++)
+                    {
+                        Shift(index, index -= windowSize + c);
+                    }
+                    for (int c = windowSize - 2; c >= r; c--)
+                    {
+                        Shift(index, index -= windowSize + c);
+                    }
+                    artifacts[artifactIndex] = blockGrid[index];
+                    artifactIndex++;
+#if DEBUG
+                    blockGrid[index].SetColor(-1);
+#endif
+                }
             }
             else throw new ArgumentOutOfRangeException("Move offset exceed 7-Block grid definition range");
         }
