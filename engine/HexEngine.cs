@@ -632,15 +632,13 @@ namespace Hex
                     {
                         Shift(index, index += windowSize + c);
                     }
-                    index--;
-                    for (int c = 0; c < windowSize; c++)
+                    for (int c = 0; c < r; c++)
                     {
                         Shift(index, index += 2 * windowSize - c - 2);
                     }
                     artifacts[artifactIndex] = blockGrid[index];
                     artifactIndex++;
 #if DEBUG
-                    Console.WriteLine(index);
                     blockGrid[index].SetColor(-1);
 #endif
                 }
