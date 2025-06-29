@@ -659,6 +659,31 @@ namespace Hex
                     blockGrid[index].SetColor(-1);
 #endif
                 }
+                // Fetch request
+                Block[]? fetchedGrid = fetchBlockHandler?.Invoke(Array.ConvertAll(artifacts, block => block.HexClone()));
+                if (fetchedGrid != null && fetchedGrid.Length == windowSize * 2 - 1)
+                {
+                    int i_artifactIndex = 0;
+                    int wm = windowSize - 1;
+                    int i_index = wm * wm + wm * windowSize / 2;
+                    for (int r = 1; r < windowSize; r++)
+                    {
+                        blockGrid[i_index] = fetchedGrid[i_artifactIndex];
+                        i_artifactIndex++;
+                        i_index += 2 * windowSize - r;
+                    }
+                    for (int r = 0; r < windowSize; r++)
+                    {
+                        blockGrid[i_index] = fetchedGrid[i_artifactIndex];
+                        i_artifactIndex++;
+                        i_index++;
+                    }
+                }
+            }
+            else if (offset.Equals(HexLib.KPlus))
+            {
+                Block[] artifacts = new Block[windowSize * 2 - 1];
+                int artifactIndex = 0;
             }
             else throw new ArgumentOutOfRangeException("Move offset exceed 7-Block grid definition range");
         }
