@@ -37,10 +37,7 @@ namespace Hex
         /// </summary>
         /// <param name="moveLimit">Maximum moves before origin reset (default: 40).</param>
         /// <param name="spaceLimit">Maximum distance from origin before reset (default: 16).</param>
-        public CoordinateManager(
-            int moveLimit = 40,
-            int spaceLimit = 16
-        )
+        public CoordinateManager(int moveLimit, int spaceLimit)
         {
             this.moveLimit = moveLimit;
             this.spaceLimit = spaceLimit;
@@ -382,6 +379,7 @@ namespace Hex
                 artifacts[artifactIndex] = blockGrid[index - 1];
 #if DEBUG
                 blockGrid[index - 1].SetColor(-1);
+                blockGrid[blockGrid.Length / 2].SetColor(64);
 #endif
                 artifacts[artifactIndex + 1] = blockGrid[blockGrid.Length / 2];
                 // Fetch request
@@ -442,6 +440,7 @@ namespace Hex
                 for (int i = windowSize - 1; i >= 0; i--) ProcessRow(windowSize + i);
 #if DEBUG
                 blockGrid[0].SetColor(-1);
+                blockGrid[blockGrid.Length / 2].SetColor(64);
 #endif
                 artifacts[artifactIndex] = blockGrid[blockGrid.Length / 2];
                 // Fetch request
@@ -468,7 +467,7 @@ namespace Hex
             }
             else if (offset.Equals(HexLib.JMinus))
             {
-                Block[] artifacts = new Block[windowSize * 2 - 1];
+                Block[] artifacts = new Block[windowSize * 2];
                 int artifactIndex = 0;
                 void Shift(int start, int end)
                 {
@@ -529,9 +528,13 @@ namespace Hex
                     blockGrid[index].SetColor(-1);
 #endif
                 }
+                artifacts[artifactIndex] = blockGrid[blockGrid.Length / 2];
+#if DEBUG
+                blockGrid[blockGrid.Length / 2].SetColor(64);
+#endif
                 // Fetch request
                 Block[]? fetchedGrid = fetchBlockHandler?.Invoke(Array.ConvertAll(artifacts, block => block.HexClone()));
-                if (fetchedGrid != null && fetchedGrid.Length == windowSize * 2 - 1)
+                if (fetchedGrid != null && fetchedGrid.Length == windowSize * 2)
                 {
                     int i_artifactIndex = 0;
                     int wm = windowSize - 1;
@@ -548,11 +551,12 @@ namespace Hex
                         blockGrid[ws - r] = fetchedGrid[i_artifactIndex];
                         i_artifactIndex++;
                     }
+                    blockGrid[blockGrid.Length / 2] = fetchedGrid[i_artifactIndex];
                 }
             }
             else if (offset.Equals(HexLib.JPlus))
             {
-                Block[] artifacts = new Block[windowSize * 2 - 1];
+                Block[] artifacts = new Block[windowSize * 2];
                 int artifactIndex = 0;
                 void Shift(int start, int end)
                 {
@@ -602,9 +606,13 @@ namespace Hex
                     blockGrid[index].SetColor(-1);
 #endif
                 }
+                artifacts[artifactIndex] = blockGrid[blockGrid.Length / 2];
+#if DEBUG
+                blockGrid[blockGrid.Length / 2].SetColor(64);
+#endif
                 // Fetch request
                 Block[]? fetchedGrid = fetchBlockHandler?.Invoke(Array.ConvertAll(artifacts, block => block.HexClone()));
-                if (fetchedGrid != null && fetchedGrid.Length == windowSize * 2 - 1)
+                if (fetchedGrid != null && fetchedGrid.Length == windowSize * 2)
                 {
                     int i_artifactIndex = 0;
                     while (i_artifactIndex < windowSize)
@@ -618,11 +626,12 @@ namespace Hex
                         blockGrid[i_index] = fetchedGrid[i_artifactIndex];
                         i_artifactIndex++;
                     }
+                    blockGrid[blockGrid.Length / 2] = fetchedGrid[i_artifactIndex];
                 }
             }
             else if (offset.Equals(HexLib.KMinus))
             {
-                Block[] artifacts = new Block[windowSize * 2 - 1];
+                Block[] artifacts = new Block[windowSize * 2];
                 int artifactIndex = 0;
                 void Shift(int start, int end)
                 {
@@ -665,9 +674,13 @@ namespace Hex
                     blockGrid[index].SetColor(-1);
 #endif
                 }
+                artifacts[artifactIndex] = blockGrid[blockGrid.Length / 2];
+#if DEBUG
+                blockGrid[blockGrid.Length / 2].SetColor(64);
+#endif
                 // Fetch request
                 Block[]? fetchedGrid = fetchBlockHandler?.Invoke(Array.ConvertAll(artifacts, block => block.HexClone()));
-                if (fetchedGrid != null && fetchedGrid.Length == windowSize * 2 - 1)
+                if (fetchedGrid != null && fetchedGrid.Length == windowSize * 2)
                 {
                     int i_artifactIndex = 0;
                     int wm = windowSize - 1;
@@ -684,11 +697,12 @@ namespace Hex
                         i_artifactIndex++;
                         i_index++;
                     }
+                    blockGrid[blockGrid.Length / 2] = fetchedGrid[i_artifactIndex];
                 }
             }
             else if (offset.Equals(HexLib.KPlus))
             {
-                Block[] artifacts = new Block[windowSize * 2 - 1];
+                Block[] artifacts = new Block[windowSize * 2];
                 int artifactIndex = 0;
                 int wm = windowSize - 1;
                 int ws = 3 * windowSize * wm - wm;
@@ -734,9 +748,13 @@ namespace Hex
                     blockGrid[index].SetColor(-1);
 #endif
                 }
+                artifacts[artifactIndex] = blockGrid[blockGrid.Length / 2];
+#if DEBUG
+                blockGrid[blockGrid.Length / 2].SetColor(64);
+#endif
                 // Fetch request
                 Block[]? fetchedGrid = fetchBlockHandler?.Invoke(Array.ConvertAll(artifacts, block => block.HexClone()));
-                if (fetchedGrid != null && fetchedGrid.Length == windowSize * 2 - 1)
+                if (fetchedGrid != null && fetchedGrid.Length == windowSize * 2)
                 {
                     int i_artifactIndex = 0;
                     while (i_artifactIndex < windowSize)
@@ -750,6 +768,7 @@ namespace Hex
                         blockGrid[i_index] = fetchedGrid[i_artifactIndex];
                         i_artifactIndex++;
                     }
+                    blockGrid[blockGrid.Length / 2] = fetchedGrid[i_artifactIndex];
                 }
             }
             else throw new ArgumentOutOfRangeException("Move offset exceed 7-Block grid definition range");
@@ -782,10 +801,10 @@ namespace Hex
         {
             cache = new List<Block>();
             cache.Add(new Block(new Hex(), -2, true));
-            blockGenerator = new BlockGenerator();
-            coordinateManager = new CoordinateManager();
+            blockGenerator = new BlockGenerator(5, 64);
+            coordinateManager = new CoordinateManager(16, 8);
             coordinateManager.SetCoordinateResetHandler(OnCoordinateReset);
-            windowManager = new WindowManager(7);
+            windowManager = new WindowManager(5);
             windowManager.SetFetchBlockHandler(OnFetchRequested);
             windowManager.Reset();
         }
@@ -830,7 +849,8 @@ namespace Hex
         }
         public void OnCoordinateReset(Hex offset)
         {
-            cache.ForEach(block => block.Subtract(offset));
+            offset = new Hex().Subtract(offset);
+            cache.ForEach(block => block.Move(offset));
         }
         public Block[] OnFetchRequested(Hex[] coordinates)
         {
@@ -857,11 +877,12 @@ namespace Hex
             // If all blocks are in cache, return them, else generate blocks
             if (notInCache.Count == 0)
             {
-                return Array.ConvertAll(coordinates, coo => coordinateManager.ToAbsolute(CacheSearch(coo)));
+                // Console.WriteLine("All in cache");
             }
             else
             {
-                OnGenerationRequested(notInCache.ToArray());
+                // Console.WriteLine("Not all in cache");
+                OnGenerationRequested([.. notInCache]);
             }
             // Return all blocks in cache
             return Array.ConvertAll(coordinates, coo => coordinateManager.ToAbsolute(CacheSearch(coo)));
@@ -978,6 +999,9 @@ namespace Hex
         }
         private void resetEngine()
         {
+#if DEBUG
+            Console.WriteLine("RESET");
+#endif
             cache.Clear();
             coordinateManager.Reset();
             windowManager.Reset();
@@ -1026,10 +1050,7 @@ namespace Hex
         /// Thrown if <paramref name="frequency"/> is less than 1 or equal to 1,
         /// or if <paramref name="colorRange"/> is less than 1.
         /// </exception>
-        public BlockGenerator(
-            int frequency = 9,
-            int colorRange = 12
-        )
+        public BlockGenerator (int frequency, int colorRange)
         {
             if (frequency < 1)
             {
