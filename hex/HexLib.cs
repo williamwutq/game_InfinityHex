@@ -46,21 +46,17 @@ namespace Hex
         /// <exception cref="IndexOutOfRangeException">Thrown when the index is outside the range [0, 6].</exception>
         public static Hex SevenBlock(int index)
         {
-            if (index == 0) {
-                return JMinus;
-            } else if (index == 1) {
-                return KMinus;
-            } else if (index == 2) {
-                return IMinus;
-            } else if (index == 3) {
-                return Origin;
-            } else if (index == 4) {
-                return IPlus;
-            } else if (index == 5) {
-                return KPlus;
-            } else if (index == 6) {
-                return JPlus;
-            } else throw new System.IndexOutOfRangeException($"Index {index} out bounds for range 7");
+            return index switch
+            {
+                0 => JMinus,
+                1 => KMinus,
+                2 => IMinus,
+                3 => Origin,
+                4 => IPlus,
+                5 => KPlus,
+                6 => JPlus,
+                _ => throw new System.IndexOutOfRangeException($"Index {index} out bounds for range 7")
+            };
         }
         /// <summary>
         /// Retrieves a hex from the circular 6-Block grid by index.
@@ -73,19 +69,16 @@ namespace Hex
         /// <exception cref="IndexOutOfRangeException">Thrown when the index is outside the range [0, 5].</exception>
         public static Hex CircularSixBlock(int index)
         {
-            if (index == 0) {
-                return IPlus;
-            } else if (index == 1) {
-                return JPlus;
-            } else if (index == 2) {
-                return KPlus;
-            } else if (index == 3) {
-                return IMinus;
-            } else if (index == 4) {
-                return JMinus;
-            } else if (index == 5) {
-                return KMinus;
-            } else throw new System.IndexOutOfRangeException($"Index {index} out bounds for range 6");
+            return index switch
+            {
+                0 => IPlus,
+                1 => JPlus,
+                2 => KPlus,
+                3 => IMinus,
+                4 => JMinus,
+                5 => KMinus,
+                _ => throw new System.IndexOutOfRangeException($"Index {index} out bounds for range 6")
+            };
         }
         /// <summary>
         /// Gets an array of all hexes in the standard 7-Block grid in the defined sequence.
@@ -114,35 +107,49 @@ namespace Hex
         public static Hex Negate(Hex sevenBlockHex)
         {
             System.ArgumentNullException.ThrowIfNull(sevenBlockHex);
-            if (sevenBlockHex.Equals(Origin))
+            return sevenBlockHex switch
             {
-                return Origin;
-            }
-            else if (sevenBlockHex.Equals(IMinus))
+                var hex when hex.Equals(Origin)   => Origin,
+                var hex when hex.Equals(IMinus)   => IPlus,
+                var hex when hex.Equals(IPlus)    => IMinus,
+                var hex when hex.Equals(JMinus)   => JPlus,
+                var hex when hex.Equals(JPlus)    => JMinus,
+                var hex when hex.Equals(KMinus)   => KPlus,
+                var hex when hex.Equals(KPlus)    => KMinus,
+                _ => throw new System.ArgumentOutOfRangeException($"Hex coordinate {sevenBlockHex} exceed 7-Block grid definition range")
+            };
+        }
+        /// <summary>
+        /// Rotate a Hex coordinate to its adjacent peer. This method is perfered compare to manual implementations or double index casting.
+        /// This method only works for coordinates in the circular 6-Block grid, otherwise an <see cref="ArgumentOutOfRangeException"/> 
+        /// will be thrown.
+        /// The circular 6-Block grid is defined as a sequence of hexes at the following line coordinates {I, J, K}:
+        /// (0, 1, 1), (1, 0, 1), (1, -1, 0), (0, -1, -1), (-1, 0, -1), (-1, 1, 0).
+        /// This represents a grid of radius 2 centered at the origin (0, 0, 0), but without the origin.
+        /// </summary>
+        /// <param name="circularSixBlockHex">The input hex coordinate to undergo direction change.</param>
+        /// <param name="direction">The direction of the rotation, true for clockwise (index increment), false for counter-clockwise (index decrement).</param>
+        /// <exception cref="ArgumentNullException">Thrown when the coordinate is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when the coordinate is outside of the circular 6-Block grid.</exception>
+        public static Hex Rotate(Hex circularSixBlockHex, bool direction)
+        {
+            System.ArgumentNullException.ThrowIfNull(circularSixBlockHex);
+            return (circularSixBlockHex, direction) switch
             {
-                return IPlus;
-            }
-            else if (sevenBlockHex.Equals(IPlus))
-            {
-                return IMinus;
-            }
-            else if (sevenBlockHex.Equals(JMinus))
-            {
-                return JPlus;
-            }
-            else if (sevenBlockHex.Equals(JPlus))
-            {
-                return JMinus;
-            }
-            else if (sevenBlockHex.Equals(KMinus))
-            {
-                return KPlus;
-            }
-            else if (sevenBlockHex.Equals(KPlus))
-            {
-                return KMinus;
-            }
-            else throw new System.ArgumentOutOfRangeException($"Hex coordinate {sevenBlockHex} exceed 7-Block grid definition range");
+                (var hex, true) when hex.Equals(IPlus)    => JPlus,
+                (var hex, false) when hex.Equals(IPlus)   => KMinus,
+                (var hex, true) when hex.Equals(JPlus)    => KPlus,
+                (var hex, false) when hex.Equals(JPlus)   => IPlus,
+                (var hex, true) when hex.Equals(KPlus)    => IMinus,
+                (var hex, false) when hex.Equals(KPlus)   => JPlus,
+                (var hex, true) when hex.Equals(IMinus)   => JMinus,
+                (var hex, false) when hex.Equals(IMinus)  => KPlus,
+                (var hex, true) when hex.Equals(JMinus)   => KMinus,
+                (var hex, false) when hex.Equals(JMinus)  => IMinus,
+                (var hex, true) when hex.Equals(KMinus)   => IPlus,
+                (var hex, false) when hex.Equals(KMinus)  => JMinus,
+                _ => throw new System.ArgumentOutOfRangeException($"Hex coordinate {circularSixBlockHex} exceed circular 6-Block grid definition range")
+            };
         }
     }
 }
