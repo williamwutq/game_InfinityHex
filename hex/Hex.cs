@@ -378,6 +378,15 @@ namespace Hex
         }
 
         /// <summary>
+        /// Moves the hex coordinate by another hex coordinate.
+        /// </summary>
+        /// <param name="other">The hex coordinate as a moving reference.</param>
+        public void Move(Hex other)
+        {
+            x += other.x;
+            y += other.y;
+        }
+        /// <summary>
         /// Moves the hex coordinate along the I-axis.
         /// </summary>
         /// <param name="unit">The number of units to move.</param>
