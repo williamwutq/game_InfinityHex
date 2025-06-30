@@ -59,6 +59,31 @@ namespace Hex
             };
         }
         /// <summary>
+        /// Retrieves index of a standard 7-Block grid hex coordinate.
+        /// The standard 7-Block grid is defined as a sequence of hexes at the following line coordinates {I, J, K}:
+        /// (-1, 0, -1), (-1, 1, 0), (0, -1, -1), (0, 0, 0), (0, 1, 1), (1, -1, 0), (1, 0, 1).
+        /// This represents a grid of radius 2 centered at the origin (0, 0, 0).
+        /// </summary>
+        /// <param name="sevenBlockHex">The hex coordinate in the 7-Block grid.</param>
+        /// <returns>The index representing the hex coordinate (0-6).</returns>
+        /// <exception cref="ArgumentNullException">Thrown when the coordinate is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when the coordinate is outside of the standard 7-Block grid.</exception>
+        public static int SevenBlockIndex(Hex sevenBlockHex)
+        {
+            System.ArgumentNullException.ThrowIfNull(sevenBlockHex);
+            return (sevenBlockHex) switch
+            {
+                var hex when hex.Equals(Origin) => 0,
+                var hex when hex.Equals(IMinus) => 1,
+                var hex when hex.Equals(IPlus)  => 2,
+                var hex when hex.Equals(JMinus) => 3,
+                var hex when hex.Equals(JPlus)  => 4,
+                var hex when hex.Equals(KMinus) => 5,
+                var hex when hex.Equals(KPlus)  => 6,
+                _ => throw new System.ArgumentOutOfRangeException($"Hex coordinate {sevenBlockHex} exceed 7-Block grid definition range")
+            };
+        }
+        /// <summary>
         /// Retrieves a hex from the circular 6-Block grid by index.
         /// The circular 6-Block grid is defined as a sequence of hexes at the following line coordinates {I, J, K}:
         /// (0, 1, 1), (1, 0, 1), (1, -1, 0), (0, -1, -1), (-1, 0, -1), (-1, 1, 0).
@@ -78,6 +103,30 @@ namespace Hex
                 4 => JMinus,
                 5 => KMinus,
                 _ => throw new System.IndexOutOfRangeException($"Index {index} out bounds for range 6")
+            };
+        }
+        /// <summary>
+        /// Retrieves index of a circular 6-Block grid hex coordinate.
+        /// The circular 6-Block grid is defined as a sequence of hexes at the following line coordinates {I, J, K}:
+        /// (0, 1, 1), (1, 0, 1), (1, -1, 0), (0, -1, -1), (-1, 0, -1), (-1, 1, 0).
+        /// This represents a grid of radius 2 centered at the origin (0, 0, 0), but without the origin.
+        /// </summary>
+        /// <param name="sevenBlockHex">The hex coordinate in the circular 6-Block grid.</param>
+        /// <returns>The index representing the hex coordinate (0-5).</returns>
+        /// <exception cref="ArgumentNullException">Thrown when the coordinate is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when the coordinate is outside of the circular 6-Block grid.</exception>
+        public static int CircularSixBlockIndex(Hex circularSixBlockHex)
+        {
+            System.ArgumentNullException.ThrowIfNull(circularSixBlockHex);
+            return (circularSixBlockHex) switch
+            {
+                var hex when hex.Equals(IPlus)  => 0,
+                var hex when hex.Equals(JPlus)  => 1,
+                var hex when hex.Equals(KPlus)  => 2,
+                var hex when hex.Equals(IMinus) => 3,
+                var hex when hex.Equals(JMinus) => 4,
+                var hex when hex.Equals(KMinus) => 5,
+                _ => throw new System.ArgumentOutOfRangeException($"Hex coordinate {circularSixBlockHex} exceed circular 6-Block grid definition range")
             };
         }
         /// <summary>
