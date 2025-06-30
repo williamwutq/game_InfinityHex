@@ -23,7 +23,7 @@ namespace Main
         Thread.Sleep(200);
         Console.Clear();
         Console.SetCursorPosition(0, 0);
-        //Console.WriteLine(hexEngine.GetASCIIArt());
+        Console.WriteLine(hexEngine.GetASCIIArt());
         Console.WriteLine(hexEngine.GetASCIIArt(0));
         Hex.Hex shift = HexLib.CircularSixBlock(random.Next(6));
         shift = HexLib.KMinus;

@@ -816,10 +816,10 @@ namespace Hex
         {
             if (offset.InRange(2))
             {
-                // Request coordinate move to the opposite direction
-                coordinateManager.Move(HexLib.Negate(offset));
-                // Visual move
-                windowManager.Move(offset);
+                // Request coordinate move to the same direction as snake
+                coordinateManager.Move(offset);
+                // Visual background move opposite to snake
+                windowManager.Move(HexLib.Negate(offset));
                 // Check head
                 Block head = SafeGetBlock(coordinateManager.GetOrigin());
                 if (head.State())
