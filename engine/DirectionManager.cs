@@ -11,12 +11,23 @@ namespace Core
     public class DirectionManager
     {
         private int direction;
+        private readonly bool mirrored;
         private readonly object syncRoot = new();
         /// <summary>
         /// Initializes a new instance of <see cref="DirectionManager"/> with direction set to 0.
         /// </summary>
         public DirectionManager()
         {
+            mirrored = false;
+            direction = 0;
+        }
+        /// <summary>
+        /// Initializes a new instance of <see cref="DirectionManager"/> with direction set to 0 and custom mirrored status.
+        /// </summary>
+        /// <param name="mirrored">Whether left / right input are to be mirrored.</param>
+        public DirectionManager(bool mirrored)
+        {
+            this.mirrored = mirrored;
             direction = 0;
         }
         /// <summary>
@@ -27,6 +38,19 @@ namespace Core
         /// <param name="initialDirection">The initial direction index (can be negative).</param>
         public DirectionManager(int initialDirection)
         {
+            mirrored = false;
+            direction = ((initialDirection % 6) + 6) % 6; // Handles negative input safely
+        }
+        /// <summary>
+        /// Initializes a new instance of <see cref="DirectionManager"/> with a given initial direction and mirrored status.
+        /// The direction is wrapped into the [0, 5] range using modulo arithmetic.
+        /// Negative values are supported and normalized.
+        /// </summary>
+        /// <param name="mirrored">Whether left / right input are to be mirrored.</param>
+        /// <param name="initialDirection">The initial direction index (can be negative).</param>
+        public DirectionManager(bool mirrored, int initialDirection)
+        {
+            this.mirrored = mirrored;
             direction = ((initialDirection % 6) + 6) % 6; // Handles negative input safely
         }
         /// <summary>
@@ -66,7 +90,7 @@ namespace Core
         /// </param>
         public void Move(bool direction)
         {
-            if (direction) Increment(); else Decrement();
+            if (direction != mirrored) Increment(); else Decrement();
         }
         /// <summary>
         /// Rotates the direction one step clockwise, or increment the direction index.

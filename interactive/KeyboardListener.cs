@@ -63,8 +63,7 @@ namespace Interactive
                     case ConsoleKey.Q:
                     case ConsoleKey.U:
                     case ConsoleKey.J:
-                        directionManager.Decrement();
-                        Console.WriteLine("← (Decrement) → " + directionManager.GetOffsetIndex());
+                        directionManager.Move(false);
                         break;
 
                     // Increment keys: →, D, E, O, L
@@ -73,7 +72,7 @@ namespace Interactive
                     case ConsoleKey.E:
                     case ConsoleKey.O:
                     case ConsoleKey.L:
-                        directionManager.Increment();
+                        directionManager.Move(true);
                         break;
 
                     // No-op keys: ↑, W, I
