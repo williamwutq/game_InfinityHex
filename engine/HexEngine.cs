@@ -637,10 +637,12 @@ namespace Engine
         private readonly CoordinateManager coordinateManager;
         private readonly WindowManager windowManager;
         private readonly BlockGenerator blockGenerator;
+        private readonly DirectionManager directionManager;
         public HexEngine()
         {
             cache = new List<Block>();
             cache.Add(new Block(new Hex.Hex(), -2, true));
+            directionManager = new DirectionManager(true);
             blockGenerator = new BlockGenerator(5, 64);
             coordinateManager = new CoordinateManager(16, 8);
             coordinateManager.SetCoordinateResetHandler(OnCoordinateReset);
@@ -651,6 +653,15 @@ namespace Engine
         public WindowManager GetWindowManager()
         {
             return windowManager;
+        }
+        public DirectionManager GetDirectionManager()
+        {
+            return directionManager;
+        }
+        public void Move()
+        {
+            // Move with directionManager
+            Move(directionManager.GetOffset());
         }
         public void Move(Hex.Hex offset)
         {

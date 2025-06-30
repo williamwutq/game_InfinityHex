@@ -6,6 +6,7 @@
 using System;
 using System.Threading;
 using Engine;
+using Interactive;
 
 namespace Main
 {
@@ -17,17 +18,17 @@ namespace Main
       Console.WriteLine("Program Test Start");
 #endif
       HexEngine hexEngine = new HexEngine();
+      KeyboardListener listener = new KeyboardListener(hexEngine.GetDirectionManager());
+      listener.Start();
       Random random = new Random();
       while (true)
       {
         Thread.Sleep(200);
         Console.Clear();
         Console.SetCursorPosition(0, 0);
-        Console.WriteLine(hexEngine.GetASCIIArt());
+        // Console.WriteLine(hexEngine.GetASCIIArt());
         Console.WriteLine(hexEngine.GetASCIIArt(0));
-        Hex.Hex shift = Hex.HexLib.CircularSixBlock(random.Next(6));
-        shift = Hex.HexLib.KMinus;
-        hexEngine.Move(shift);
+        hexEngine.Move();
       }
     }
   }
