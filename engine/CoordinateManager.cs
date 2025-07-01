@@ -3,11 +3,13 @@ namespace Core
     /// <summary>
     /// Manages hexagonal grid coordinates with movement tracking and origin reset functionality.
     /// Implements a coordinate system for hexagonal grids, with limits on moves and spatial range.
+    /// This manager is thread-safe, and it can maintain global spacial reference consistency across threads.
     /// </summary>
     public class CoordinateManager
     {
         private readonly int moveLimit;
         private readonly int spaceLimit;
+        private readonly System.Threading.Lock lockObject = new();
         private Hex.Hex origin;
         private int moves;
 
@@ -48,17 +50,20 @@ namespace Core
         /// </remarks>
         public void Move(Hex.Hex offset)
         {
-            moves++;
-            Hex.Hex offsetOrigin = origin.Add(offset);
-            if (moves >= moveLimit || !offsetOrigin.InRange(spaceLimit))
+            lock (lockObject)
             {
-                origin = new Hex.Hex();
-                moves = 0;
-                coordinateResetHandler?.Invoke(offsetOrigin);
-            }
-            else
-            {
-                origin = offsetOrigin;
+                moves++;
+                Hex.Hex offsetOrigin = origin.Add(offset);
+                if (moves >= moveLimit || !offsetOrigin.InRange(spaceLimit))
+                {
+                    origin = new Hex.Hex();
+                    moves = 0;
+                    coordinateResetHandler?.Invoke(offsetOrigin);
+                }
+                else
+                {
+                    origin = offsetOrigin;
+                }
             }
         }
 
@@ -67,8 +72,11 @@ namespace Core
         /// </summary>
         public void Reset()
         {
-            origin = new Hex.Hex();
-            moves = 0;
+            lock (lockObject)
+            {
+                origin = new Hex.Hex();
+                moves = 0;
+            }
         }
 
         /// <summary>
@@ -77,7 +85,10 @@ namespace Core
         /// <returns>A cloned Hex representing the current origin.</returns>
         public Hex.Hex GetOrigin()
         {
-            return this.origin.HexClone();
+            lock (lockObject)
+            {
+                return this.origin.HexClone();
+            }
         }
 
         /// <summary>
@@ -89,7 +100,10 @@ namespace Core
         public Hex.Hex ToAbsolute(Hex.Hex relativeCoordinate)
         {
             System.ArgumentNullException.ThrowIfNull(relativeCoordinate);
-            return relativeCoordinate.Add(this.origin);
+            lock (lockObject)
+            {
+                return relativeCoordinate.Add(this.origin);
+            }
         }
         /// <summary>
         /// Converts an absolute coordinate to a relative coordinate by subtracting the origin.
@@ -100,7 +114,10 @@ namespace Core
         public Hex.Hex ToRelative(Hex.Hex absoluteCoordinate)
         {
             System.ArgumentNullException.ThrowIfNull(absoluteCoordinate);
-            return absoluteCoordinate.Subtract(this.origin);
+            lock (lockObject)
+            {
+                return absoluteCoordinate.Subtract(this.origin);
+            }
         }
         /// <summary>
         /// Converts a block in relative coordinate to a block in absolute coordinate by adding the origin.
@@ -111,7 +128,10 @@ namespace Core
         public Hex.Block ToAbsolute(Hex.Block relativeBlock)
         {
             System.ArgumentNullException.ThrowIfNull(relativeBlock);
-            return relativeBlock.Add(this.origin);
+            lock (lockObject)
+            {
+                return relativeBlock.Add(this.origin);
+            }
         }
         /// <summary>
         /// Converts a block in absolute coordinate to a block in relative coordinate by subtracting the origin.
@@ -122,7 +142,10 @@ namespace Core
         public Hex.Block ToRelative(Hex.Block absoluteBlock)
         {
             System.ArgumentNullException.ThrowIfNull(absoluteBlock);
-            return absoluteBlock.Subtract(this.origin);
+            lock (lockObject)
+            {
+                return absoluteBlock.Subtract(this.origin);
+            }
         }
         /// <summary>
         /// Converts an array of relative coordinates to absolute coordinates.
