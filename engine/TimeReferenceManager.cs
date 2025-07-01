@@ -3,11 +3,14 @@ namespace Core
     /// <summary>
     /// A class that manages a centralized time reference for a collection of <see cref="TimedObject{object}"/> instances,
     /// enabling efficient time updates, conversions between absolute and relative time, and expiration checks.
+    /// This manager is thread-safe, and it can maintain global time reference consistency across threads.
+    /// However, it is advisable to sync behavior of different threads to reduce the possibility of unintended Age calls.
     /// </summary>
     public class TimeReferenceManager
     {
         private readonly int limit;
         private readonly int expire;
+        private readonly System.Threading.Lock lockObject = new();
         private int currentTime;
         private HandleTimeReferenceReset? timeReferenceResetHandler;
         /// <summary>
@@ -42,19 +45,25 @@ namespace Core
         /// </summary>
         public void Age()
         {
-            if (currentTime == 0)
+            lock (lockObject)
             {
-                timeReferenceResetHandler?.Invoke(limit);
-                currentTime = limit;
+                if (currentTime == 0)
+                {
+                    timeReferenceResetHandler?.Invoke(limit);
+                    currentTime = limit;
+                }
+                else currentTime--;
             }
-            else currentTime--;
         }
         /// <summary>
         /// Resets the current time reference to the limit value.
         /// </summary>
         public void Reset()
         {
-            currentTime = limit;
+            lock (lockObject)
+            {
+                currentTime = limit;
+            }
         }
         /// <summary>
         /// Gets the current time reference.
@@ -62,7 +71,10 @@ namespace Core
         /// <returns>The current time reference value.</returns>
         public int GetTime()
         {
-            return currentTime;
+            lock (lockObject)
+            {
+                return currentTime;
+            }
         }
         /// <summary>
         /// Converts an absolute time to a relative time by subtracting the current time reference.
@@ -71,7 +83,10 @@ namespace Core
         /// <returns>The relative time value.</returns>
         public int ToRelative(int absoluteTime)
         {
-            return absoluteTime - currentTime;
+            lock (lockObject)
+            {
+                return absoluteTime - currentTime;
+            }
         }
         /// <summary>
         /// Converts a relative time to an absolute time by adding the current time reference.
@@ -80,23 +95,30 @@ namespace Core
         /// <returns>The absolute time value.</returns>
         public int ToAbsolute(int relativeTime)
         {
-            return relativeTime + currentTime;
+            lock (lockObject)
+            {
+                return relativeTime + currentTime;
+            }
         }
         /// <summary>
         /// Converts the time of a <see cref="TimedObject{object}"/> from absolute to relative by subtracting the current time reference.
         /// </summary>
         /// <param name="absoluteTimedObject">The <see cref="TimedObject{object}"/> with an absolute time value.</param>
+        /// <exception cref="ArgumentNullException">Thrown if absoluteTimedObject is null.</exception>
         public void ToRelative(TimedObject<object> absoluteTimedObject)
         {
-            absoluteTimedObject.Age(-currentTime);
+            System.ArgumentNullException.ThrowIfNull(absoluteTimedObject);
+            absoluteTimedObject.Age(-GetTime());
         }
         /// <summary>
         /// Converts the time of a <see cref="TimedObject{object}"/> from relative to absolute by adding the current time reference.
         /// </summary>
         /// <param name="relativeTimedObject">The <see cref="TimedObject{object}"/> with a relative time value.</param>
+        /// <exception cref="ArgumentNullException">Thrown if relativeTimedObject is null.</exception>
         public void ToAbsolute(TimedObject<object> relativeTimedObject)
         {
-            relativeTimedObject.Age(currentTime);
+            System.ArgumentNullException.ThrowIfNull(relativeTimedObject);
+            relativeTimedObject.Age(GetTime());
         }
         /// <summary>
         /// Creates a new <see cref="TimedObject{object}"/> with the current absolute time.
@@ -107,7 +129,7 @@ namespace Core
         /// <returns>A new <see cref="TimedObject{object}"/> with the current absolute time.</returns>
         public TimedObject<object> ConstructAbsoluteTimedObject(object obj)
         {
-            return new TimedObject<object>(obj, currentTime);
+            return new TimedObject<object>(obj, GetTime());
         }
         /// <summary>
         /// Creates a new <see cref="TimedObject{object}"/> with an absolute time based on the current time reference plus a relative time.
@@ -119,7 +141,7 @@ namespace Core
         /// <returns>A new <see cref="TimedObject{object}"/> with the calculated absolute time.</returns>
         public TimedObject<object> ConstructAbsoluteTimedObject(object obj, int relativeTime)
         {
-            return new TimedObject<object>(obj, currentTime + relativeTime);
+            return new TimedObject<object>(obj, GetTime() + relativeTime);
         }
         /// <summary>
         /// Sets the time of a <see cref="TimedObject{object}"/> to the current absolute time, effectively renewing it.
@@ -127,18 +149,22 @@ namespace Core
         /// should call this renew method instead.
         /// </summary>
         /// <param name="absoluteTimedObject">The <see cref="TimedObject{object}"/> to renew.</param>
+        /// <exception cref="ArgumentNullException">Thrown if absoluteTimedObject is null.</exception>
         public void Renew(TimedObject<object> absoluteTimedObject)
         {
-            absoluteTimedObject.SetTime(currentTime);
+            System.ArgumentNullException.ThrowIfNull(absoluteTimedObject);
+            absoluteTimedObject.SetTime(GetTime());
         }
         /// <summary>
         /// Sets the time of a <see cref="TimedObject{object}"/> to an absolute time based on the current time reference plus a relative time.
         /// </summary>
         /// <param name="absoluteTimedObject">The <see cref="TimedObject{object}"/> to update.</param>
         /// <param name="relativeTime">The relative time to add to the current time reference.</param>
+        /// <exception cref="ArgumentNullException">Thrown if absoluteTimedObject is null.</exception>
         public void SetRelativeTime(TimedObject<object> absoluteTimedObject, int relativeTime)
         {
-            absoluteTimedObject.SetTime(currentTime + relativeTime);
+            System.ArgumentNullException.ThrowIfNull(absoluteTimedObject);
+            absoluteTimedObject.SetTime(GetTime() + relativeTime);
         }
         /// <summary>
         /// Gets the relative expiration threshold.
@@ -146,7 +172,10 @@ namespace Core
         /// <returns>The expiration duration in relative time.</returns>
         public int GetRelativeExpire()
         {
-            return expire;
+            lock (lockObject)
+            {
+                return expire;
+            }
         }
         /// <summary>
         /// Gets the absolute expiration threshold based on the current time reference.
@@ -154,7 +183,10 @@ namespace Core
         /// <returns>The expiration time in absolute terms.</returns>
         public int GetAbsoluteExpire()
         {
-            return expire + currentTime;
+            lock (lockObject)
+            {
+                return expire + currentTime;
+            }
         }
         /// <summary>
         /// Determines whether an absolute time has expired based on the expiration threshold.
@@ -169,10 +201,10 @@ namespace Core
         /// Determines whether a <see cref="TimedObject{object}"/> has expired based on its absolute time.
         /// </summary>
         /// <param name="absoluteTimedObject">The <see cref="TimedObject{object}"/> to check.</param>
-        /// <returns>True if the object has expired; otherwise, false.</returns>
+        /// <returns>True if the object has expired or is null; otherwise, false.</returns>
         public bool IsExpired(TimedObject<object> absoluteTimedObject)
         {
-            return absoluteTimedObject.GetTime() > GetAbsoluteExpire();
+            return absoluteTimedObject == null || absoluteTimedObject.GetTime() > GetAbsoluteExpire();
         }
     }
 }
