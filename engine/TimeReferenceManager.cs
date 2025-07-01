@@ -1,7 +1,7 @@
 namespace Core
 {
     /// <summary>
-    /// A class that manages a centralized time reference for a collection of <see cref="TimedObject{object}"/> instances,
+    /// A class that manages a centralized time reference for a collection of <see cref="TimedObject{Object}"/> instances,
     /// enabling efficient time updates, conversions between absolute and relative time, and expiration checks.
     /// This manager is thread-safe, and it can maintain global time reference consistency across threads.
     /// However, it is advisable to sync behavior of different threads to reduce the possibility of unintended Age calls.
@@ -15,7 +15,7 @@ namespace Core
         private HandleTimeReferenceReset? timeReferenceResetHandler;
         /// <summary>
         /// Delegate for handling time reference reset events, invoked when the time reference resets to the limit.
-        /// Implementation should call <see cref="TimedObject{object}.Age(time)"/> on all 
+        /// Implementation should call <see cref="TimedObject{Object}.Age(time)"/> on all 
         /// </summary>
         /// <param name="time">The limit value to which the time reference is reset.</param>
         public delegate void HandleTimeReferenceReset(int time);
@@ -40,7 +40,7 @@ namespace Core
         }
         /// <summary>
         /// Decrements the current time reference. If the time reaches 0, it resets to the limit and invokes the reset handler.
-        /// Instead of calling <see cref="TimedObject{object}.Age(time)"/> on every single object, large collection of <see cref="TimedObject{object}"/>
+        /// Instead of calling <see cref="TimedObject{Object}.Age(time)"/> on every single object, large collection of <see cref="TimedObject{Object}"/>
         /// can be aged by calling this method on the manager.
         /// </summary>
         public void Age()
@@ -101,67 +101,67 @@ namespace Core
             }
         }
         /// <summary>
-        /// Converts the time of a <see cref="TimedObject{object}"/> from absolute to relative by subtracting the current time reference.
+        /// Converts the time of a <see cref="TimedObject{Object}"/> from absolute to relative by subtracting the current time reference.
         /// </summary>
-        /// <param name="absoluteTimedObject">The <see cref="TimedObject{object}"/> with an absolute time value.</param>
+        /// <param name="absoluteTimedObject">The <see cref="TimedObject{Object}"/> with an absolute time value.</param>
         /// <exception cref="ArgumentNullException">Thrown if absoluteTimedObject is null.</exception>
-        public void ToRelative(TimedObject<object> absoluteTimedObject)
+        public void ToRelative(TimedObject<System.Object> absoluteTimedObject)
         {
             System.ArgumentNullException.ThrowIfNull(absoluteTimedObject);
             absoluteTimedObject.Age(-GetTime());
         }
         /// <summary>
-        /// Converts the time of a <see cref="TimedObject{object}"/> from relative to absolute by adding the current time reference.
+        /// Converts the time of a <see cref="TimedObject{Object}"/> from relative to absolute by adding the current time reference.
         /// </summary>
-        /// <param name="relativeTimedObject">The <see cref="TimedObject{object}"/> with a relative time value.</param>
+        /// <param name="relativeTimedObject">The <see cref="TimedObject{Object}"/> with a relative time value.</param>
         /// <exception cref="ArgumentNullException">Thrown if relativeTimedObject is null.</exception>
-        public void ToAbsolute(TimedObject<object> relativeTimedObject)
+        public void ToAbsolute(TimedObject<System.Object> relativeTimedObject)
         {
             System.ArgumentNullException.ThrowIfNull(relativeTimedObject);
             relativeTimedObject.Age(GetTime());
         }
         /// <summary>
-        /// Creates a new <see cref="TimedObject{object}"/> with the current absolute time.
-        /// Instead of calling <see cref="TimedObject{object}"/> constructor, large collection of TimedObject
+        /// Creates a new <see cref="TimedObject{Object}"/> with the current absolute time.
+        /// Instead of calling <see cref="TimedObject{Object}"/> constructor, large collection of TimedObject
         /// should call this construction method instead.
         /// </summary>
-        /// <param name="obj">The object to store in the <see cref="TimedObject{object}"/>.</param>
-        /// <returns>A new <see cref="TimedObject{object}"/> with the current absolute time.</returns>
-        public TimedObject<object> ConstructAbsoluteTimedObject(object obj)
+        /// <param name="obj">The object to store in the <see cref="TimedObject{Object}"/>.</param>
+        /// <returns>A new <see cref="TimedObject{Object}"/> with the current absolute time.</returns>
+        public TimedObject<T> ConstructAbsoluteTimedObject<T>(T obj)
         {
-            return new TimedObject<object>(obj, GetTime());
+            return new TimedObject<T>(obj, GetTime());
         }
         /// <summary>
-        /// Creates a new <see cref="TimedObject{object}"/> with an absolute time based on the current time reference plus a relative time.
-        /// Instead of calling <see cref="TimedObject{object}"/> constructor, large collection of TimedObject
+        /// Creates a new <see cref="TimedObject{Object}"/> with an absolute time based on the current time reference plus a relative time.
+        /// Instead of calling <see cref="TimedObject{Object}"/> constructor, large collection of TimedObject
         /// should call this construction method instead.
         /// </summary>
-        /// <param name="obj">The object to store in the <see cref="TimedObject{object}"/>.</param>
+        /// <param name="obj">The object to store in the <see cref="TimedObject{Object}"/>.</param>
         /// <param name="relativeTime">The relative time to add to the current time reference.</param>
-        /// <returns>A new <see cref="TimedObject{object}"/> with the calculated absolute time.</returns>
-        public TimedObject<object> ConstructAbsoluteTimedObject(object obj, int relativeTime)
+        /// <returns>A new <see cref="TimedObject{Object}"/> with the calculated absolute time.</returns>
+        public TimedObject<T> ConstructAbsoluteTimedObject<T>(T obj, int relativeTime)
         {
-            return new TimedObject<object>(obj, GetTime() + relativeTime);
+            return new TimedObject<T>(obj, GetTime() + relativeTime);
         }
         /// <summary>
-        /// Sets the time of a <see cref="TimedObject{object}"/> to the current absolute time, effectively renewing it.
-        /// Instead of calling <see cref="TimedObject{object}.Renew()"/> to renew objects, large collection of TimedObject
+        /// Sets the time of a <see cref="TimedObject{Object}"/> to the current absolute time, effectively renewing it.
+        /// Instead of calling <see cref="TimedObject{Object}.Renew()"/> to renew objects, large collection of TimedObject
         /// should call this renew method instead.
         /// </summary>
-        /// <param name="absoluteTimedObject">The <see cref="TimedObject{object}"/> to renew.</param>
+        /// <param name="absoluteTimedObject">The <see cref="TimedObject{Object}"/> to renew.</param>
         /// <exception cref="ArgumentNullException">Thrown if absoluteTimedObject is null.</exception>
-        public void Renew(TimedObject<object> absoluteTimedObject)
+        public void Renew(TimedObject<System.Object> absoluteTimedObject)
         {
             System.ArgumentNullException.ThrowIfNull(absoluteTimedObject);
             absoluteTimedObject.SetTime(GetTime());
         }
         /// <summary>
-        /// Sets the time of a <see cref="TimedObject{object}"/> to an absolute time based on the current time reference plus a relative time.
+        /// Sets the time of a <see cref="TimedObject{Object}"/> to an absolute time based on the current time reference plus a relative time.
         /// </summary>
-        /// <param name="absoluteTimedObject">The <see cref="TimedObject{object}"/> to update.</param>
+        /// <param name="absoluteTimedObject">The <see cref="TimedObject{Object}"/> to update.</param>
         /// <param name="relativeTime">The relative time to add to the current time reference.</param>
         /// <exception cref="ArgumentNullException">Thrown if absoluteTimedObject is null.</exception>
-        public void SetRelativeTime(TimedObject<object> absoluteTimedObject, int relativeTime)
+        public void SetRelativeTime(TimedObject<System.Object> absoluteTimedObject, int relativeTime)
         {
             System.ArgumentNullException.ThrowIfNull(absoluteTimedObject);
             absoluteTimedObject.SetTime(GetTime() + relativeTime);
@@ -198,11 +198,11 @@ namespace Core
             return absoluteTime > GetAbsoluteExpire();
         }
         /// <summary>
-        /// Determines whether a <see cref="TimedObject{object}"/> has expired based on its absolute time.
+        /// Determines whether a <see cref="TimedObject{Object}"/> has expired based on its absolute time.
         /// </summary>
-        /// <param name="absoluteTimedObject">The <see cref="TimedObject{object}"/> to check.</param>
+        /// <param name="absoluteTimedObject">The <see cref="TimedObject{Object}"/> to check.</param>
         /// <returns>True if the object has expired or is null; otherwise, false.</returns>
-        public bool IsExpired(TimedObject<object> absoluteTimedObject)
+        public bool IsExpired(TimedObject<System.Object> absoluteTimedObject)
         {
             return absoluteTimedObject == null || absoluteTimedObject.GetTime() > GetAbsoluteExpire();
         }
