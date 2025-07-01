@@ -635,13 +635,16 @@ namespace Engine
     {
         private readonly LinkedList<TimedObject<Block>> cache;
         private readonly CoordinateManager coordinateManager;
+        private readonly TimeReferenceManager timeReferenceManager;
         private readonly WindowManager windowManager;
         private readonly BlockGenerator blockGenerator;
         private readonly DirectionManager directionManager;
         public HexEngine()
         {
             cache = new();
-            cache.AddFirst(new TimedObject<Block>(new Block(new Hex.Hex(), -2, true)));
+            timeReferenceManager = new TimeReferenceManager(255, 65535);
+            timeReferenceManager.SetTimeResetHandler(OnTimeReset);
+            cache.AddFirst(timeReferenceManager.ConstructAbsoluteTimedObject<Block>(new Block(new Hex.Hex(), -2, true)));
             directionManager = new DirectionManager(true);
             blockGenerator = new BlockGenerator(5, 64);
             coordinateManager = new CoordinateManager(16, 8);
@@ -669,6 +672,7 @@ namespace Engine
             {
                 // Request coordinate move to the same direction as snake
                 coordinateManager.Move(offset);
+                timeReferenceManager.Age();
                 // Visual background move opposite to snake
                 windowManager.Move(HexLib.Negate(offset));
                 // Check head
@@ -704,6 +708,13 @@ namespace Engine
             foreach (TimedObject<Block> block in cache)
             {
                 block.GetObject().Move(offset);
+            }
+        }
+        public void OnTimeReset(int time)
+        {
+            foreach (TimedObject<Block> timedObject in cache)
+            {
+                timedObject.Age(time);
             }
         }
         public Block[] OnFetchRequested(Hex.Hex[] coordinates)
@@ -865,13 +876,13 @@ namespace Engine
             ArgumentNullException.ThrowIfNull(coordinates);
             if (coordinates.Length == 1)
             {
-                cache.AddFirst(new TimedObject<Block>(blockGenerator.GenerateBlock(coordinates[0])));
+                cache.AddFirst(timeReferenceManager.ConstructAbsoluteTimedObject<Block>(blockGenerator.GenerateBlock(coordinates[0])));
             }
             else
             {
                 foreach (Hex.Hex coo in coordinates)
                 {
-                    cache.AddFirst(new TimedObject<Block>(blockGenerator.GenerateBlock(coo)));
+                    cache.AddFirst(timeReferenceManager.ConstructAbsoluteTimedObject<Block>(blockGenerator.GenerateBlock(coo)));
                 }
             }
         }
