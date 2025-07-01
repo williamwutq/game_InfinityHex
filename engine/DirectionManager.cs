@@ -106,5 +106,13 @@ namespace Core
         {
             lock (syncRoot) direction = (direction + 5) % 6;
         }
+        /// <summary>
+        /// Returns a string representation of the current direction index.
+        /// </summary>
+        /// <returns>A string describing the DirectionManager state.</returns>
+        public override string ToString()
+        {
+            lock (syncRoot) return $"DirectionManager(direction={direction})";
+        }
     }
 }

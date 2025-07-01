@@ -206,5 +206,16 @@ namespace Core
         {
             return absoluteTimedObject == null || absoluteTimedObject.GetTime() > GetAbsoluteExpire();
         }
+        /// <summary>
+        /// Returns a string that represents the current state of the TimeReferenceManager.
+        /// </summary>
+        /// <returns>A string containing the limit, expire, and current time values.</returns>
+        public override string ToString()
+        {
+            lock (lockObject)
+            {
+                return $"TimeReferenceManager(time={currentTime}/{limit}, expire={expire})";
+            }
+        }
     }
 }

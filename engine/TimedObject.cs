@@ -183,5 +183,16 @@ namespace Core
                 return 0; // If objects are not comparable, consider them equal if times are equal
             }
         }
+        /// <summary>
+        /// Returns a string that represents the current <see cref="TimedObject{T}"/>.
+        /// </summary>
+        /// <returns>A string containing the time value and the stored object's string representation.</returns>
+        public override string ToString()
+        {
+            lock (lockObject)
+            {
+                return $"TimedObject<{typeof(T).Name}>(time={timed}, object={obj})";
+            }
+        }
     }
 }

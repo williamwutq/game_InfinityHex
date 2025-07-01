@@ -183,5 +183,16 @@ namespace Core
         {
             return System.Array.ConvertAll(absoluteBlocks, coo => ToRelative(coo));
         }
+        /// <summary>
+        /// Returns a string representation of the CoordinateManager.
+        /// </summary>
+        /// <returns>A string describing the current origin and move count.</returns>
+        public override string ToString()
+        {
+            lock (lockObject)
+            {
+                return $"CoordinateManager(origin={origin}/{spaceLimit}, moves={moves}/{moveLimit})";
+            }
+        }
     }
 }
