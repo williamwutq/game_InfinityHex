@@ -633,15 +633,15 @@ namespace Engine
 
     public class HexEngine
     {
-        private readonly List<Block> cache;
+        private readonly LinkedList<TimedObject<Block>> cache;
         private readonly CoordinateManager coordinateManager;
         private readonly WindowManager windowManager;
         private readonly BlockGenerator blockGenerator;
         private readonly DirectionManager directionManager;
         public HexEngine()
         {
-            cache = new List<Block>();
-            cache.Add(new Block(new Hex.Hex(), -2, true));
+            cache = new();
+            cache.AddFirst(new TimedObject<Block>(new Block(new Hex.Hex(), -2, true)));
             directionManager = new DirectionManager(true);
             blockGenerator = new BlockGenerator(5, 64);
             coordinateManager = new CoordinateManager(16, 8);
@@ -701,7 +701,10 @@ namespace Engine
         public void OnCoordinateReset(Hex.Hex offset)
         {
             offset = new Hex.Hex().Subtract(offset);
-            cache.ForEach(block => block.Move(offset));
+            foreach (TimedObject<Block> block in cache)
+            {
+                block.GetObject().Move(offset);
+            }
         }
         public Block[] OnFetchRequested(Hex.Hex[] coordinates)
         {
@@ -720,7 +723,7 @@ namespace Engine
             List<Hex.Hex> notInCache = new List<Hex.Hex>();
             foreach (Hex.Hex coordinate in coordinates)
             {
-                if (!cache.Any(block => block.HexClone().Equals(coordinate)))
+                if (!cache.Any(block => block.GetObject().HexClone().Equals(coordinate)))
                 {
                     notInCache.Add(coordinate);
                 }
@@ -828,7 +831,7 @@ namespace Engine
         }
         private Block CacheSearch(Hex.Hex coordinate)
         {
-            List<Block> validList = cache.Where(block => block.HexClone().Equals(coordinate)).ToList();
+            List<TimedObject<Block>> validList = cache.Where(block => block.GetObject().HexClone().Equals(coordinate)).ToList();
             int count = validList.Count;
             if (count == 0)
             {
@@ -836,11 +839,11 @@ namespace Engine
             }
             else if (count == 1)
             {
-                return validList[0];
+                return validList[0].GetObject();
             }
             else
             {
-                Block first = validList[0];
+                Block first = validList[0].GetObject();
                 foreach (var block in validList.Skip(1))
                 {
                     cache.Remove(block);
@@ -860,15 +863,16 @@ namespace Engine
         private void OnGenerationRequested(Hex.Hex[] coordinates)
         {
             ArgumentNullException.ThrowIfNull(coordinates);
-            if (coordinates.Length == 0)
+            if (coordinates.Length == 1)
             {
-                return;
-            } else if (coordinates.Length == 1) {
-                cache.Add(blockGenerator.GenerateBlock(coordinates[0]));
+                cache.AddFirst(new TimedObject<Block>(blockGenerator.GenerateBlock(coordinates[0])));
             }
             else
             {
-                cache.AddRange(blockGenerator.GenerateBlocks(coordinates));
+                foreach (Hex.Hex coo in coordinates)
+                {
+                    cache.AddFirst(new TimedObject<Block>(blockGenerator.GenerateBlock(coo)));
+                }
             }
         }
         public String GetASCIIArt()
