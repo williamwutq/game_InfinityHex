@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Hex;
 using Core;
+using System.Numerics;
 
 namespace Engine
 {
@@ -636,20 +637,22 @@ namespace Engine
         private readonly LinkedList<TimedObject<Block>> cache;
         private readonly CoordinateManager coordinateManager;
         private readonly TimeReferenceManager timeReferenceManager;
+        private int snakeLength;
         private readonly WindowManager windowManager;
         private readonly BlockGenerator blockGenerator;
         private readonly DirectionManager directionManager;
         public HexEngine()
         {
             cache = new();
-            timeReferenceManager = new TimeReferenceManager(255, 65535);
+            snakeLength = 1;
+            timeReferenceManager = new TimeReferenceManager(256, 65536);
             timeReferenceManager.SetTimeResetHandler(OnTimeReset);
             cache.AddFirst(timeReferenceManager.ConstructAbsoluteTimedObject<Block>(new Block(new Hex.Hex(), -2, true)));
             directionManager = new DirectionManager(true);
-            blockGenerator = new BlockGenerator(5, 64);
-            coordinateManager = new CoordinateManager(16, 8);
+            blockGenerator = new BlockGenerator(5, 16);
+            coordinateManager = new CoordinateManager(4096, 256);
             coordinateManager.SetCoordinateResetHandler(OnCoordinateReset);
-            windowManager = new WindowManager(5);
+            windowManager = new WindowManager(11);
             windowManager.SetFetchBlockHandler(OnFetchRequested);
             windowManager.Reset();
         }
@@ -670,13 +673,24 @@ namespace Engine
         {
             if (offset.InRange(2))
             {
+                // Increment time
+                timeReferenceManager.Age();
                 // Request coordinate move to the same direction as snake
                 coordinateManager.Move(offset);
-                timeReferenceManager.Age();
                 // Visual background move opposite to snake
                 windowManager.Move(HexLib.Negate(offset));
                 // Check head
-                Block head = SafeGetBlock(coordinateManager.GetOrigin());
+                TimedObject<Block> timedHead;
+                try
+                {
+                    timedHead = CacheSearch(coordinateManager.GetOrigin());
+                }
+                catch (InvalidOperationException)
+                {
+                    OnGenerationRequested([new Hex.Hex()]);
+                    timedHead = CacheSearch(coordinateManager.GetOrigin());
+                }
+                Block head = timedHead.GetObject();
                 if (head.State())
                 {
                     // If head is occupied, check the type of occupation
@@ -689,13 +703,22 @@ namespace Engine
                     else
                     {
                         // Eat food, increment snake length
+                        snakeLength++;
+                        timeReferenceManager.Renew(timedHead);
                         head.SetState(true);
                         head.SetColor(-2); // -2 (default occupied color) refering to snake
                     }
                 }
                 else
                 {
-                    // If not, this block is now snake head, and do not increment snake length
+                    // Remove the tail to not increment snake length
+                    TimedObject<Block>? timedTail = timedTail = cache.First(obj => timeReferenceManager.ToRelative(obj.GetTime()) == snakeLength && obj.GetObject().State() && obj.GetObject().Color() == -2);
+                    Block tail = timedTail.GetObject();
+                    timeReferenceManager.Renew(timedTail);
+                    tail.SetState(false);
+                    tail.SetColor(-1); // -1 (default unoccupied color) refering to empty space
+                    // If not, this block is now snake head
+                    timeReferenceManager.Renew(timedHead);
                     head.SetState(true);
                     head.SetColor(-2); // -2 (default occupied color) refering to snake
                 }
@@ -750,7 +773,7 @@ namespace Engine
                 OnGenerationRequested([.. notInCache]);
             }
             // Return all blocks in cache
-            return Array.ConvertAll(coordinates, coo => coordinateManager.ToAbsolute(CacheSearch(coo)));
+            return Array.ConvertAll(coordinates, coo => coordinateManager.ToAbsolute(CacheSearch(coo).GetObject()));
         }
 
         public String GetASCIIArt(int windowSize)
@@ -830,17 +853,17 @@ namespace Engine
             ArgumentNullException.ThrowIfNull(coordinate);
             try
             {
-                return CacheSearch(coordinate);
+                return CacheSearch(coordinate).GetObject();
             }
             catch (InvalidOperationException)
             {
                 // If block not found in cache, generate a new block immediately
                 OnGenerationRequested([coordinate]);
                 // Now return searched block
-                return CacheSearch(coordinate);
+                return CacheSearch(coordinate).GetObject();
             }
         }
-        private Block CacheSearch(Hex.Hex coordinate)
+        private TimedObject<Block> CacheSearch(Hex.Hex coordinate)
         {
             List<TimedObject<Block>> validList = cache.Where(block => block.GetObject().HexClone().Equals(coordinate)).ToList();
             int count = validList.Count;
@@ -850,11 +873,11 @@ namespace Engine
             }
             else if (count == 1)
             {
-                return validList[0].GetObject();
+                return validList[0];
             }
             else
             {
-                Block first = validList[0].GetObject();
+                TimedObject<Block> first = validList[0];
                 foreach (var block in validList.Skip(1))
                 {
                     cache.Remove(block);
@@ -868,6 +891,9 @@ namespace Engine
             Console.WriteLine("RESET");
 #endif
             cache.Clear();
+            timeReferenceManager.Reset();
+            cache.AddFirst(timeReferenceManager.ConstructAbsoluteTimedObject<Block>(new Block(new Hex.Hex(), -2, true)));
+            snakeLength = 1;
             coordinateManager.Reset();
             windowManager.Reset();
         }
