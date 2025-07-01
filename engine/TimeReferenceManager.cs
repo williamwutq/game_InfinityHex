@@ -36,7 +36,7 @@ namespace Core
         {
             this.limit = limit;
             this.expire = expire;
-            this.currentTime = 0;
+            this.currentTime = limit;
         }
         /// <summary>
         /// Decrements the current time reference. If the time reaches 0, it resets to the limit and invokes the reset handler.
