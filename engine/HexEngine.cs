@@ -700,6 +700,12 @@ namespace Engine
                         // Currently, only reset everything
                         resetEngine();
                     }
+                    else if (snakeLength + 1 >= timeReferenceManager.GetRelativeExpire())
+                    {
+                        // If snake reach maximum length, end game
+                        // Currently, only reset everything
+                        resetEngine();
+                    }
                     else
                     {
                         // Eat food, increment snake length
@@ -721,6 +727,11 @@ namespace Engine
                     timeReferenceManager.Renew(timedHead);
                     head.SetState(true);
                     head.SetColor(-2); // -2 (default occupied color) refering to snake
+                }
+                // Remove outdated cache if exist using expire in timeReferenceManager
+                while (cache.Count > 0 && cache.Last != null && timeReferenceManager.IsExpired(cache.Last.Value))
+                {
+                    cache.RemoveLast();
                 }
             }
             else throw new ArgumentOutOfRangeException("Move offset exceed 7-Block grid definition range");
