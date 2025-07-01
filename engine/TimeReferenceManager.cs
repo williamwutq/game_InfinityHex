@@ -32,14 +32,17 @@ namespace Core
         /// </summary>
         /// <param name="limit">The maximum time value before the time reference resets.</param>
         /// <param name="expire">The duration after which objects are considered expired.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when limit or expire value are smaller or equals to 1, which is forbidden.</exception>
         public TimeReferenceManager(int limit, int expire)
         {
+            System.ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(limit, 1);
+            System.ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(expire, 1);
             this.limit = limit;
             this.expire = expire;
             this.currentTime = limit;
         }
         /// <summary>
-        /// Decrements the current time reference. If the time reaches 0, it resets to the limit and invokes the reset handler.
+        /// Decrements the current time reference. If the time is about to reach 0, it resets to the limit and invokes the reset handler.
         /// Instead of calling <see cref="TimedObject{T}.Age(time)"/> on every single object, large collection of <see cref="TimedObject{Object}"/>
         /// can be aged by calling this method on the manager.
         /// </summary>
@@ -47,7 +50,7 @@ namespace Core
         {
             lock (lockObject)
             {
-                if (currentTime == 0)
+                if (currentTime == 1)
                 {
                     timeReferenceResetHandler?.Invoke(limit);
                     currentTime = limit;
