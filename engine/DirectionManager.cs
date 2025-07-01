@@ -12,7 +12,7 @@ namespace Core
     {
         private int direction;
         private readonly bool mirrored;
-        private readonly object syncRoot = new();
+        private readonly System.Threading.Lock syncRoot = new();
         /// <summary>
         /// Initializes a new instance of <see cref="DirectionManager"/> with direction set to 0.
         /// </summary>
