@@ -33,7 +33,8 @@ public static partial class ColorManager
             ["DefaultBlockColor"] = Brushes.LightBlue,
             ["DefaultTextColor"] = Brushes.Black,
             ["DefaultLineColor"] = Brushes.DarkGray,
-            ["DefaultShadowColor"] = Brushes.LightGray
+            ["DefaultShadowColor"] = Brushes.LightGray,
+            ["TitlePanelBackgroundColor"] = Brushes.LightBlue,
         }
     };
     /// <summary>
