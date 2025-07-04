@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 
-namespace game_InfinityHex
+namespace game_InfinityHex.UI
 {
     public partial class MainWindow : Window
     {
