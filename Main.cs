@@ -10,6 +10,7 @@ using Interactive;
 
 namespace Main
 {
+  /*
   class MainGame
   {
     static void Main(string[] args)
@@ -32,4 +33,5 @@ namespace Main
       }
     }
   }
+  //*/
 }
