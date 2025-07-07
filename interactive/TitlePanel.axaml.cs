@@ -14,14 +14,14 @@ namespace game_InfinityHex.UI
         private readonly TextBlock titleText;
         public TitlePanel()
         {
-            Background = ColorManager.FetchColor("DefaultBackgroundColor");
+            Background = ThemeManager.DefaultManager.FetchBrush("Background_Color");
             Padding = new Thickness(1);
             HorizontalAlignment = HorizontalAlignment.Stretch;
             VerticalAlignment = VerticalAlignment.Top;
 
             internalBorder = new Border
             {
-                Background = ColorManager.FetchColor("TitlePanelBackgroundColor"),
+                Background = ThemeManager.DefaultManager.FetchBrush("TitlePanel_Background_Color"),
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
             };
@@ -31,7 +31,7 @@ namespace game_InfinityHex.UI
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 FontSize = 24,
-                Foreground = ColorManager.FetchColor("TitlePanelTextColor")
+                Foreground = ThemeManager.DefaultManager.FetchBrush("TitlePanel_Text_Color")
             };
             internalBorder.Child = titleText;
             Child = internalBorder;

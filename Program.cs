@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using game_InfinityHex.UI;
 using System;
 
 namespace game_InfinityHex;
@@ -30,6 +31,7 @@ partial class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        ThemeManager.DefaultManager.SetCurrentTheme("Default");
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
 

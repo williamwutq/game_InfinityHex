@@ -9,7 +9,7 @@ namespace game_InfinityHex.UI
         private readonly TitlePanel TitlePanel = new TitlePanel();
         public MainWindow()
         {
-            Background = ColorManager.FetchColor("DefaultBackgroundColor");
+            Background = ThemeManager.DefaultManager.FetchBrush("Background_Color");
             MinWidth = 400;
             MinHeight = 400;
             Width = MinWidth;

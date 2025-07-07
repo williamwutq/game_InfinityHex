@@ -1,0 +1,165 @@
+using Avalonia.Media;
+using Avalonia.Media.Fonts;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
+
+namespace game_InfinityHex.UI;
+
+/// <summary>
+/// Represents a theme with optional inheritance and a set of key-value fields.
+/// Each field is a color or font setting used throughout the UI.
+/// </summary>
+public class Theme
+{
+    /// <summary>
+    /// Name of the theme. Used as a unique identifier.
+    /// </summary>
+    public string Name { get; }
+    /// <summary>
+    /// Theme field values, such as color or font definitions.
+    /// </summary>
+    public Dictionary<string, string> Fields { get; }
+    /// <summary>
+    /// Constructs a Theme instance.
+    /// </summary>
+    public Theme(string name, Dictionary<string, string> fields)
+    {
+        Name = name;
+        Fields = fields;
+    }
+
+    /// <summary>
+    /// Gets the raw string value for a given field key, checking fallback keys.
+    /// </summary>
+    public string? ResolveField(string key)
+    {
+        foreach (var fallback in GenerateFallbackKeys(key))
+        {
+            if (Fields.TryGetValue(fallback, out var val))
+                return val;
+        }
+        return null;
+    }
+    /// <summary>
+    /// Returns a resolved brush from a field key.
+    /// </summary>
+    public IBrush FetchBrush(string key = "Color")
+    {
+        var raw = ResolveField(key);
+        return raw != null && Color.TryParse(raw, out var color) ? new SolidColorBrush(color) : Brushes.Transparent;
+    }
+    /// <summary>
+    /// Returns a resolved font family from a field key.
+    /// </summary>
+    public FontFamily FetchFont(string key = "Font")
+    {
+        var raw = ResolveField(key);
+        return raw != null ? new FontFamily(raw) : new FontFamily("sans-serif");
+    }
+    /// <summary>
+    /// Generates fallback keys from a key like A_B_C_D into [A_B_C_D, B_C_D, C_D, D].
+    /// </summary>
+    private static IEnumerable<string> GenerateFallbackKeys(string key)
+    {
+        var parts = key.Split('_');
+        for (int i = 0; i < parts.Length; i++)
+        {
+            yield return string.Join('_', parts.Skip(i));
+        }
+    }
+    /// <summary>
+    /// Returns a debug string representation of the theme, showing inheritance and merged fields.
+    /// </summary>
+    public override string ToString()
+    {
+        string fieldString = string.Join(", ", Fields.Select(kv => $"{kv.Key}={kv.Value}"));
+        return $"Theme[{fieldString}]";
+    }
+}
+
+/// <summary>
+/// Manages loading and accessing multiple themes, including fallback resolution.
+/// </summary>
+public class ThemeManager
+{
+    public static ThemeManager DefaultManager { get; set; } = new("config/themes");
+    private readonly Dictionary<string, Theme> Themes = [];
+    /// <summary>
+    /// The currently active theme name (read-only).
+    /// </summary>
+    public string CurrentThemeName { get; private set; } = "Base";
+    /// <summary>
+    /// Gets the currently active theme.
+    /// </summary>
+    public Theme CurrentTheme => Themes.TryGetValue(CurrentThemeName, out var t) ? t : Themes["Base"];
+    /// <summary>
+    /// Sets the current theme by name. Return false is name does not exist
+    /// </summary>
+    /// <returns>Whether theme has been successfully set</returns>
+    public bool SetCurrentTheme(string name)
+    {
+        if (Themes.ContainsKey(name))
+        {
+            CurrentThemeName = name;
+            return true;
+        }
+        else return false;
+    }
+    /// <summary>
+    /// Initializes and loads themes from a directory. Also injects a hardcoded "Base" theme.
+    /// Each valid theme must include "Name" field and a "Type" field with value "HexTheme".
+    /// </summary>
+    public ThemeManager(string folder)
+    {
+        // Hardcoded base theme
+        Themes["Base"] = new Theme(
+            "Base", new()
+            {
+            ["Color"] = "#00000000",
+            ["Font"] = "sans-serif"
+            }
+        );
+        if (!Path.IsPathRooted(folder))
+        {
+            var projectBaseDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
+            folder = Path.Combine(projectBaseDir, folder.TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+        }
+        if (!Directory.Exists(folder))
+        {
+            return;
+        }
+        else foreach (var file in Directory.EnumerateFiles(folder, "*.json", SearchOption.AllDirectories))
+            {
+                var json = File.ReadAllText(file);
+                var raw = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(json)!;
+                if (raw == null || !raw.TryGetValue("Type", out var typeProp) || typeProp.GetString() != "HexTheme")
+                {
+                    continue;
+                }
+                if (!raw.TryGetValue("Name", out var nameProp))
+                {
+                    continue;
+                }
+                var name = nameProp.GetString()!;
+                var fieldMap = raw
+                    .Where(kv => kv.Key != "Name" && kv.Key != "Type")
+                    .ToDictionary(kv => kv.Key, kv => kv.Value.GetString() ?? "");
+                Themes[name] = new Theme(name, fieldMap);
+            }
+    }
+    /// <summary>
+    /// Returns a color brush from the current theme using fallback rules.
+    /// </summary>
+    public IBrush FetchBrush(string key = "Color") => CurrentTheme.FetchBrush(key);
+    /// <summary>
+    /// Returns a font family from the current theme using fallback rules.
+    /// </summary>
+    public FontFamily FetchFont(string key = "Font") => CurrentTheme.FetchFont(key);
+    /// <summary>
+    /// Lists all available theme names.
+    /// </summary>
+    public IEnumerable<string> GetAvailableThemes() => Themes.Keys;
+}

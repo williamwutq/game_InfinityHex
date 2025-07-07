@@ -1,0 +1,11 @@
+{
+    "Type": "HexTheme",
+    "Name": "Default",
+    "Background_Color": "#FFFFFF",
+    "Block_Color": "#ADD8E6",
+    "Text_Color": "#000000",
+    "Line_Color": "#A9A9A9",
+    "Shadow_Color": "#D3D3D3",
+    "TitlePanel_Background_Color": "#ADD8E6",
+    "TitlePanel_Text_Color": "#00008B"
+}
