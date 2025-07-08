@@ -209,8 +209,8 @@ public class ThemeManager
         Themes["Base"] = new Theme(
             "Base", new()
             {
-            ["Color"] = "#00000000",
-            ["Font"] = "sans-serif"
+                ["Color"] = "#00000000",
+                ["Font"] = "sans-serif"
             }
         );
         if (!Path.IsPathRooted(folder))
@@ -234,7 +234,7 @@ public class ThemeManager
                     continue;
                 }
                 string name = nameProp.GetString()!;
-                if (Path.GetFileNameWithoutExtension(file) == name) continue;
+                if (Path.GetFileNameWithoutExtension(file) != name) continue;
                 var fieldMap = raw
                     .Where(kv => kv.Key != "Name" && kv.Key != "Type")
                     .ToDictionary(kv => kv.Key, kv => kv.Value.GetString() ?? "");
@@ -253,4 +253,12 @@ public class ThemeManager
     /// Lists all available theme names.
     /// </summary>
     public IEnumerable<string> GetAvailableThemes() => Themes.Keys;
+    /// <summary>
+    /// Returns a debug string representation of the ThemeManager, listing all themes.
+    /// </summary>
+    public override string ToString()
+    {
+        var themeList = string.Join(", ", Themes.Keys);
+        return $"ThemeManager[Current={CurrentThemeName}, Themes=[{themeList}]]";
+    }
 }
