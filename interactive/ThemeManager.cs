@@ -1,5 +1,4 @@
 using Avalonia.Media;
-using Avalonia.Media.Fonts;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -52,8 +51,8 @@ public class Theme
     }
     /// <summary>
     /// Returns a resolved font family from a field key.
-    /// The default key is "Font". If you intend to fetch a brush for a different field, specify the key explicitly.
-     /// If no font is found, returns <c>new FontFamily("sans-serif")</c> as a fallback.
+    /// The default key is "Font". If you intend to fetch a font for a different field, specify the key explicitly.
+    /// If no font is found, returns <c>new FontFamily("sans-serif")</c> as a fallback.
     /// </summary>
     public FontFamily FetchFont(string key = "Font")
     {
@@ -103,7 +102,33 @@ public class Theme
 public class ThemeManager
 {
     private static readonly string projectBaseDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
-    public static ThemeManager DefaultManager { get; set; }
+    /// <summary>
+    /// Gets the default <see cref="ThemeManager"/> instance used across the application (read-only).
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// During initialization, the <c>DefaultManager</c> will be attempted to be initialized by the class
+    /// using configuration settings from <c>config/Setting.json</c>. It looks for:
+    /// <list type="bullet">
+    /// <item>
+    /// <term>ThemePath</term>
+    /// <description>Specifies the directory from which to load themes.</description>
+    /// </item>
+    /// <item>
+    /// <term>Theme</term>
+    /// <description>The name of the theme to load and apply.</description>
+    /// </item>
+    /// </list>
+    /// If the <c>ThemePath</c> is invalid or not present, it falls back to the default path <c>config/themes</c>.
+    /// If the specified <c>Theme</c> cannot be set, it attempts to apply a theme named <c>Default</c>.
+    /// </para>
+    /// <para>
+    /// The static property is guaranteed to be non-null after class initialization, and usually can be used as the first
+    /// theme to be used for current display, unless the user prefer other themes that they may choose.
+    /// This property cannot be otherwise set.
+    /// </para>
+    /// </remarks>
+    public static ThemeManager DefaultManager { get; }
     static ThemeManager()
     {
         string defaultThemeDir = "config/themes";
@@ -162,7 +187,7 @@ public class ThemeManager
     /// </summary>
     public Theme CurrentTheme => Themes.TryGetValue(CurrentThemeName, out var t) ? t : Themes["Base"];
     /// <summary>
-    /// Sets the current theme by name. Return false is name does not exist
+    /// Sets the current theme by name. Returns false if the name does not exist.
     /// </summary>
     /// <returns>Whether theme has been successfully set</returns>
     public bool SetCurrentTheme(string name)
@@ -209,7 +234,7 @@ public class ThemeManager
                     continue;
                 }
                 string name = nameProp.GetString()!;
-                if (file == name) continue;
+                if (Path.GetFileNameWithoutExtension(file) == name) continue;
                 var fieldMap = raw
                     .Where(kv => kv.Key != "Name" && kv.Key != "Type")
                     .ToDictionary(kv => kv.Key, kv => kv.Value.GetString() ?? "");
