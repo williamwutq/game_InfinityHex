@@ -1,10 +1,8 @@
 using System;
-using System.ComponentModel;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
-using Avalonia.Styling;
 
 namespace game_InfinityHex.UI
 {
@@ -40,7 +38,7 @@ namespace game_InfinityHex.UI
         }
         public void UpdateLayout(Size containerSize)
         {
-            // _adding: 1/32
+            // padding: 1/32
             double pad = Math.Min(containerSize.Width, containerSize.Height) / 32;
             Padding = new Thickness(pad);
 
