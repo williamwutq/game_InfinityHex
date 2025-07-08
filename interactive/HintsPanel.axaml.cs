@@ -43,6 +43,7 @@ namespace game_InfinityHex.UI
             Padding = new Thickness(1);
             HorizontalAlignment = HorizontalAlignment.Stretch;
             VerticalAlignment = VerticalAlignment.Top;
+            Margin = new Thickness(0, 0, 0, 0);
 
             internalBorder = new Border
             {
@@ -54,7 +55,8 @@ namespace game_InfinityHex.UI
             {
                 Text = globalHintsManager.GetHint(),
                 FontFamily = ThemeManager.DefaultManager.FetchFont("TitlePanel_Text_Font"),
-                FontWeight = FontWeight.Bold,
+                FontWeight = FontWeight.Regular,
+                FontStyle = FontStyle.Italic,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 FontSize = 24,
@@ -66,11 +68,12 @@ namespace game_InfinityHex.UI
         public void UpdateLayout(Size containerSize)
         {
             // padding: 1/32
-            double pad = Math.Min(containerSize.Width, containerSize.Height) / 32;
+            double pad = Math.Min(containerSize.Width, containerSize.Height) / 128;
             Padding = new Thickness(pad);
 
             // Height = 1/8 of height and full width
-            Height = containerSize.Height / 8;
+            Height = containerSize.Height / 32;
+            Margin = new Thickness(0, Height * 3, 0, 0);
             Width = containerSize.Width;
             internalBorder.Height = Height - pad * 2;
             internalBorder.Width = Width - pad * 2;
