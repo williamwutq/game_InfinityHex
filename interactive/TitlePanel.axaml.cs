@@ -28,6 +28,8 @@ namespace game_InfinityHex.UI
             titleText = new TextBlock
             {
                 Text = ProgramInfo.GameName,
+                FontFamily = ThemeManager.DefaultManager.FetchFont("TitlePanel_Text_Font"),
+                FontWeight = FontWeight.Bold,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 FontSize = 24,
@@ -49,7 +51,7 @@ namespace game_InfinityHex.UI
             internalBorder.Width = Width - pad * 2;
             internalBorder.CornerRadius = new CornerRadius(internalBorder.Height / 4);
            
-            titleText.FontSize = containerSize.Height / 16;
+            titleText.FontSize = internalBorder.Height / 1.5;
         }
     }
 }
