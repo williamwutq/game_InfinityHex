@@ -141,16 +141,16 @@ public class ThemeManager
         );
         if (!Path.IsPathRooted(folder))
         {
-            var projectBaseDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
+            string projectBaseDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
             folder = Path.Combine(projectBaseDir, folder.TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
         }
         if (!Directory.Exists(folder))
         {
             return;
         }
-        else foreach (var file in Directory.EnumerateFiles(folder, "*.json", SearchOption.AllDirectories))
+        else foreach (string file in Directory.EnumerateFiles(folder, "*.json", SearchOption.AllDirectories))
             {
-                var json = File.ReadAllText(file);
+                string json = File.ReadAllText(file);
                 var raw = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(json)!;
                 if (raw == null || !raw.TryGetValue("Type", out var typeProp) || typeProp.GetString() != "HexTheme")
                 {
@@ -160,7 +160,8 @@ public class ThemeManager
                 {
                     continue;
                 }
-                var name = nameProp.GetString()!;
+                string name = nameProp.GetString()!;
+                if (file == name) continue;
                 var fieldMap = raw
                     .Where(kv => kv.Key != "Name" && kv.Key != "Type")
                     .ToDictionary(kv => kv.Key, kv => kv.Value.GetString() ?? "");
