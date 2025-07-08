@@ -31,7 +31,6 @@ partial class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        ThemeManager.DefaultManager.SetCurrentTheme("Default");
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
 

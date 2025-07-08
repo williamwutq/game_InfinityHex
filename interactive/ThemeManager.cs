@@ -102,7 +102,56 @@ public class Theme
 /// </summary>
 public class ThemeManager
 {
-    public static ThemeManager DefaultManager { get; set; } = new("config/themes");
+    private static readonly string projectBaseDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
+    public static ThemeManager DefaultManager { get; set; }
+    static ThemeManager()
+    {
+        string defaultThemeDir = "config/themes";
+        string settingPath = Path.Combine(projectBaseDir, "config/Setting.json");
+        string? themePath = null;
+        string? themeName = null;
+        ThemeManager manager;
+        // Try to read Setting.json for ThemePath and Theme
+        if (File.Exists(settingPath))
+        {
+            try
+            {
+                var settingJson = File.ReadAllText(settingPath);
+                var settingDict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(settingJson);
+                if (settingDict != null)
+                {
+                    if (settingDict.TryGetValue("ThemePath", out var themePathElem))
+                        themePath = themePathElem.GetString();
+                    if (settingDict.TryGetValue("Theme", out var themeNameElem))
+                        themeName = themeNameElem.GetString();
+                }
+            }
+            catch { }
+        }
+        // Try loading from ThemePath if specified
+        if (!string.IsNullOrWhiteSpace(themePath))
+        {
+            manager = new ThemeManager(themePath);
+            if (!manager.GetAvailableThemes().Any())
+            {
+                manager = new ThemeManager(defaultThemeDir);
+            }
+        }
+        else
+        {
+            manager = new ThemeManager(defaultThemeDir);
+        }
+        // Try to set theme if specified
+        if (!string.IsNullOrWhiteSpace(themeName))
+        {
+            if (!manager.SetCurrentTheme(themeName))
+            {
+                manager.SetCurrentTheme("Default");
+            }
+        }
+        DefaultManager = manager;
+    }
+
     private readonly Dictionary<string, Theme> Themes = [];
     /// <summary>
     /// The currently active theme name (read-only).
@@ -141,7 +190,6 @@ public class ThemeManager
         );
         if (!Path.IsPathRooted(folder))
         {
-            string projectBaseDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
             folder = Path.Combine(projectBaseDir, folder.TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
         }
         if (!Directory.Exists(folder))
