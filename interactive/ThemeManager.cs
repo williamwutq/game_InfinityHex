@@ -32,32 +32,49 @@ public class Theme
     }
 
     /// <summary>
-    /// Gets the raw string value for a given field key, checking fallback keys.
-    /// </summary>
-    public string? ResolveField(string key)
-    {
-        foreach (var fallback in GenerateFallbackKeys(key))
-        {
-            if (Fields.TryGetValue(fallback, out var val))
-                return val;
-        }
-        return null;
-    }
-    /// <summary>
     /// Returns a resolved brush from a field key.
+    /// The default key is "Color". If you intend to fetch a brush for a different field, specify the key explicitly.
+    /// If no color is found, returns <see cref="Brushes.Transparent"/> as a fallback.
     /// </summary>
     public IBrush FetchBrush(string key = "Color")
     {
-        var raw = ResolveField(key);
-        return raw != null && Color.TryParse(raw, out var color) ? new SolidColorBrush(color) : Brushes.Transparent;
+        foreach (string fallback in GenerateFallbackKeys(key))
+        {
+            if (Fields.TryGetValue(fallback, out var val))
+            {
+                if (val != null && Color.TryParse(val, out var color))
+                {
+                    return new SolidColorBrush(color);
+                }
+            }
+        }
+        return Brushes.Transparent;
     }
     /// <summary>
     /// Returns a resolved font family from a field key.
+    /// The default key is "Font". If you intend to fetch a brush for a different field, specify the key explicitly.
+     /// If no font is found, returns <c>new FontFamily("sans-serif")</c> as a fallback.
     /// </summary>
     public FontFamily FetchFont(string key = "Font")
     {
-        var raw = ResolveField(key);
-        return raw != null ? new FontFamily(raw) : new FontFamily("sans-serif");
+        foreach (string fallback in GenerateFallbackKeys(key))
+        {
+            if (Fields.TryGetValue(fallback, out var val))
+            {
+                if (val != null)
+                {
+                    try
+                    {
+                        return FontFamily.Parse(val);
+                    }
+                    catch (ArgumentException)
+                    {
+                        continue;
+                    }
+                }
+            }
+        }
+        return new FontFamily("sans-serif");
     }
     /// <summary>
     /// Generates fallback keys from a key like A_B_C_D into [A_B_C_D, B_C_D, C_D, D].
