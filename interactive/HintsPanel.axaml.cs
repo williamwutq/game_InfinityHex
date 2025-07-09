@@ -58,11 +58,9 @@ namespace game_InfinityHex.UI
         }
         public void UpdateLayout(Size containerSize)
         {
-            // padding: 1/32
             double pad = Math.Min(containerSize.Width, containerSize.Height) / 128;
             Padding = new Thickness(pad);
 
-            // Height = 1/8 of height and full width
             double h = containerSize.Height / 12;
             Height = h / 2;
             Margin = new Thickness(0, Height * 2, 0, 0);
