@@ -6,18 +6,36 @@ using Avalonia.Media;
 
 namespace game_InfinityHex.UI
 {
-    public class AuthorPanel : StackPanel
+    public class AuthorPanel : Grid
     {
+        private readonly StackPanel stackLeft;
+        private readonly StackPanel stackRight;
         private readonly TextBlock authorTextA;
         private readonly TextBlock authorTextWW;
         private readonly TextBlock authorTextGame;
+        private readonly TextBlock copyrightText;
         public AuthorPanel()
         {
             Background = ThemeManager.DefaultManager.FetchBrush("Color");
-            Orientation = Orientation.Horizontal;
+            ColumnDefinitions = new ColumnDefinitions("*,*");
             HorizontalAlignment = HorizontalAlignment.Stretch;
             VerticalAlignment = VerticalAlignment.Bottom;
             Margin = new Thickness(0, 0, 0, 0);
+
+            stackLeft = new StackPanel()
+            {
+                Background = ThemeManager.DefaultManager.FetchBrush("Color"),
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Bottom,
+            };
+            stackRight = new StackPanel()
+            {
+                Background = ThemeManager.DefaultManager.FetchBrush("Color"),
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Bottom,
+            };
 
             authorTextA = new TextBlock()
             {
@@ -52,9 +70,25 @@ namespace game_InfinityHex.UI
                 HorizontalAlignment = HorizontalAlignment.Left,
                 FontSize = 20,
             };
-            Children.Add(authorTextA);
-            Children.Add(authorTextWW);
-            Children.Add(authorTextGame);
+            copyrightText = new TextBlock()
+            {
+                Text = "  ©2025 William Wu  ",
+                FontFamily = ThemeManager.DefaultManager.FetchFont("Author_AuthorPanel_Text_Font"),
+                Foreground = ThemeManager.DefaultManager.FetchBrush("Author_AuthorPanel_Text_Color"),
+                FontWeight = FontWeight.Regular,
+                FontStyle = FontStyle.Normal,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                FontSize = 20,
+            };
+            stackLeft.Children.Add(authorTextA);
+            stackLeft.Children.Add(authorTextWW);
+            stackLeft.Children.Add(authorTextGame);
+            stackRight.Children.Add(copyrightText);
+            Children.Add(stackLeft);
+            Children.Add(stackRight);
+            SetColumn(stackLeft, 0);
+            SetColumn(stackRight, 1);
         }
         public void UpdateLayout(Size containerSize)
         {
@@ -66,6 +100,7 @@ namespace game_InfinityHex.UI
             authorTextA.FontSize = fontSize;
             authorTextWW.FontSize = fontSize;
             authorTextGame.FontSize = fontSize;
+            copyrightText.FontSize = fontSize;
         }
     }
 }
