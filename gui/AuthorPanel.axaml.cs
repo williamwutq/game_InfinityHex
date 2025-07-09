@@ -27,14 +27,14 @@ namespace game_InfinityHex.UI
                 Background = ThemeManager.DefaultManager.FetchBrush("Color"),
                 Orientation = Orientation.Horizontal,
                 HorizontalAlignment = HorizontalAlignment.Left,
-                VerticalAlignment = VerticalAlignment.Bottom,
+                VerticalAlignment = VerticalAlignment.Stretch,
             };
             stackRight = new StackPanel()
             {
                 Background = ThemeManager.DefaultManager.FetchBrush("Color"),
                 Orientation = Orientation.Horizontal,
                 HorizontalAlignment = HorizontalAlignment.Right,
-                VerticalAlignment = VerticalAlignment.Bottom,
+                VerticalAlignment = VerticalAlignment.Stretch,
             };
 
             authorTextA = new TextBlock()
@@ -95,7 +95,7 @@ namespace game_InfinityHex.UI
             double launchAuthorSize = Math.Min(containerSize.Height, containerSize.Width * 2.25);
             double fontSize = launchAuthorSize / 40;
 
-            Height = fontSize * 1.5;
+            Height = fontSize * 2;
             Width = containerSize.Width;
             authorTextA.FontSize = fontSize;
             authorTextWW.FontSize = fontSize;
