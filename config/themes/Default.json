@@ -9,5 +9,7 @@
     "Shadow_Color": "#D3D3D3",
     "TitlePanel_Background_Color": "#ADD8E6",
     "TitlePanel_Text_Color": "#00008B",
-    "TitlePanel_Text_Font": "Verdana"
+    "TitlePanel_Text_Font": "Verdana",
+    "HintsPanel_Text_Color": "#808080",
+    "HintsPanel_Text_Font": "Courier"
 }

@@ -34,36 +34,27 @@ namespace game_InfinityHex.UI
             "What is the coolest feature?",
             "Ohhh is it really that boring?",
         ]);
-
-        private readonly Border internalBorder;
         private readonly TextBlock titleText;
         public HintsPanel()
         {
-            Background = ThemeManager.DefaultManager.FetchBrush("Background_Color");
+            Background = ThemeManager.DefaultManager.FetchBrush("Color");
             Padding = new Thickness(1);
             HorizontalAlignment = HorizontalAlignment.Stretch;
             VerticalAlignment = VerticalAlignment.Top;
             Margin = new Thickness(0, 0, 0, 0);
 
-            internalBorder = new Border
-            {
-                Background = ThemeManager.DefaultManager.FetchBrush("TitlePanel_Background_Color"),
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-            };
             titleText = new TextBlock
             {
                 Text = globalHintsManager.GetHint(),
-                FontFamily = ThemeManager.DefaultManager.FetchFont("TitlePanel_Text_Font"),
+                FontFamily = ThemeManager.DefaultManager.FetchFont("HintsPanel_Text_Font"),
                 FontWeight = FontWeight.Regular,
                 FontStyle = FontStyle.Italic,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 FontSize = 24,
-                Foreground = ThemeManager.DefaultManager.FetchBrush("TitlePanel_Text_Color")
+                Foreground = ThemeManager.DefaultManager.FetchBrush("HintsPanel_Text_Color")
             };
-            internalBorder.Child = titleText;
-            Child = internalBorder;
+            Child = titleText;
         }
         public void UpdateLayout(Size containerSize)
         {
@@ -72,14 +63,12 @@ namespace game_InfinityHex.UI
             Padding = new Thickness(pad);
 
             // Height = 1/8 of height and full width
-            Height = containerSize.Height / 32;
-            Margin = new Thickness(0, Height * 3, 0, 0);
+            double h = containerSize.Height / 12;
+            Height = h / 2;
+            Margin = new Thickness(0, Height * 2, 0, 0);
             Width = containerSize.Width;
-            internalBorder.Height = Height - pad * 2;
-            internalBorder.Width = Width - pad * 2;
-            internalBorder.CornerRadius = new CornerRadius(internalBorder.Height / 4);
            
-            titleText.FontSize = internalBorder.Height / 1.5;
+            titleText.FontSize = h / 4;
         }
     }
 }
