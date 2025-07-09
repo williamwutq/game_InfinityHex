@@ -11,5 +11,11 @@
     "TitlePanel_Text_Color": "#00008B",
     "TitlePanel_Text_Font": "Verdana",
     "HintsPanel_Text_Color": "#808080",
-    "HintsPanel_Text_Font": "Courier"
+    "HintsPanel_Text_Font": "Courier",
+    "AuthorPanel_Text_Font": "Helvetica",
+    "AuthorPanel_Text_Color": "#004936",
+    "Author_AuthorPanel_Text_Font": "Helvetica",
+    "Author_AuthorPanel_Text_Color": "#004936",
+    "WW_AuthorPanel_Text_Font": "Georgia",
+    "WW_AuthorPanel_Text_Color": "#000000"
 }
