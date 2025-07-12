@@ -17,5 +17,8 @@
     "Author_AuthorPanel_Text_Font": "Helvetica",
     "Author_AuthorPanel_Text_Color": "#004936",
     "WW_AuthorPanel_Text_Font": "Georgia",
-    "WW_AuthorPanel_Text_Color": "#000000"
+    "WW_AuthorPanel_Text_Color": "#000000",
+    "Launch_Button_Text_Font": "Times New Roman",
+    "Launch_Button_Text_Color": "#FFFFFF",
+    "Launch_Button_Background_Color": "#000000"
 }
