@@ -9,6 +9,7 @@ namespace game_InfinityHex.UI
         private readonly TitlePanel titlePanel = new TitlePanel();
         private readonly HintsPanel hintsPanel = new HintsPanel();
         private readonly AuthorPanel authorPanel = new AuthorPanel();
+        private readonly LaunchContent launchContent = new LaunchContent();
         public MainWindow()
         {
             Background = ThemeManager.DefaultManager.FetchBrush("Background_Color");
@@ -26,6 +27,7 @@ namespace game_InfinityHex.UI
             WindowRoot.Children.Add(titlePanel);
             WindowRoot.Children.Add(hintsPanel);
             WindowRoot.Children.Add(authorPanel);
+            WindowRoot.Children.Add(launchContent);
 
             LayoutUpdated += OnLayoutUpdated;
 
@@ -38,6 +40,7 @@ namespace game_InfinityHex.UI
                 titlePanel.UpdateLayout(new Size(Bounds.Width, Bounds.Height));
                 hintsPanel.UpdateLayout(new Size(Bounds.Width, Bounds.Height));
                 authorPanel.UpdateLayout(new Size(Bounds.Width, Bounds.Height));
+                launchContent.UpdateLayout(new Size(Bounds.Width, Bounds.Height));
             }
         }
     }
