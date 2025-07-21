@@ -50,4 +50,34 @@ namespace game_InfinityHex.UI
             InvalidateVisual(); // Request a redraw to apply the new fill color
         }
     }
+
+    public class CoupledHexagon : Hexagon
+    {
+        private Hex.Block coloredBlock;
+        private readonly ColorManager colorManager;
+        public CoupledHexagon(Hex.Hex coordinate, ColorManager colorManager)
+        {
+            this.colorManager = colorManager;
+            this.coloredBlock = new Hex.Block(coordinate);
+        }
+        public CoupledHexagon(Hex.Block coloredBlock, ColorManager colorManager)
+        {
+            this.colorManager = colorManager;
+            this.coloredBlock = coloredBlock;
+        }
+        private void UpdateFilledColor()
+        {
+            SetFillColor(colorManager.InterpretColor(coloredBlock.Color()));
+        }
+        public void ChangeBlock(Hex.Block newBlock)
+        {
+            coloredBlock = newBlock;
+            UpdateFilledColor();
+        }
+        public void ChangeBlockColor(int newColorIndex)
+        {
+            coloredBlock.SetColor(newColorIndex);
+            UpdateFilledColor();
+        }
+    }
 }
