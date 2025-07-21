@@ -26,5 +26,10 @@ namespace game_InfinityHex.UI
 
             InitializeComponent();
         }
+        public void ChangeControl(Control newControl)
+        {
+            mainControl = newControl;
+            Content = mainControl;
+        }
     }
 }
