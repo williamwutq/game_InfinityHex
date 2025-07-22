@@ -5,12 +5,13 @@
 
 using System;
 using System.Threading;
+using Core;
 using Engine;
 using Interactive;
 
 namespace Main
 {
-  /*
+  //*
   class MainGame
   {
     static void Main(string[] args)
@@ -27,8 +28,8 @@ namespace Main
         Thread.Sleep(200);
         Console.Clear();
         Console.SetCursorPosition(0, 0);
-        // Console.WriteLine(hexEngine.GetASCIIArt());
-        Console.WriteLine(hexEngine.GetASCIIArt(0));
+        // Console.WriteLine(hexEngine.GetASCIIArt(0));
+        Console.WriteLine(((IHexPrintable)hexEngine).GetASCIIArt());
         hexEngine.Move();
       }
     }
