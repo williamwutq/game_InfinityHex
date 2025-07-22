@@ -20,5 +20,17 @@
     "WW_AuthorPanel_Text_Color": "#000000",
     "Launch_Button_Text_Font": "Times New Roman",
     "Launch_Button_Text_Color": "#FFFFFF",
-    "Launch_Button_Background_Color": "#000000"
+    "Launch_Button_Background_Color": "#000000",
+    "0_Indexed_Block_Color": "#FF0000",
+    "1_Indexed_Block_Color": "#FFFF00",
+    "2_Indexed_Block_Color": "#008000",
+    "3_Indexed_Block_Color": "#00FFFF",
+    "4_Indexed_Block_Color": "#0000FF",
+    "5_Indexed_Block_Color": "#FF00FF",
+    "6_Indexed_Block_Color": "#FFA500",
+    "7_Indexed_Block_Color": "#9ACD32",
+    "8_Indexed_Block_Color": "#7FFFD4",
+    "9_Indexed_Block_Color": "#00BFFF",
+    "10_Indexed_Block_Color": "#800080",
+    "11_Indexed_Block_Color": "#FF1493"
 }
