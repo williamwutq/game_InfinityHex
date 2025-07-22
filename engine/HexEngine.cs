@@ -632,7 +632,7 @@ namespace Engine
         }
     }
 
-    public class HexEngine
+    public class HexEngine : IHexPrintable
     {
         private readonly LinkedList<TimedObject<Block>> cache;
         private readonly CoordinateManager coordinateManager;
@@ -795,7 +795,7 @@ namespace Engine
             }
             if (windowSize < 1)
             {
-                return GetASCIIArt();
+                ((IHexPrintable)this).GetASCIIArt();
             }
             StringBuilder sb = new StringBuilder();
             int size = windowSize - 1;
@@ -923,9 +923,31 @@ namespace Engine
                 }
             }
         }
-        public String GetASCIIArt()
+        public Block[] GetBlocks()
         {
-            return windowManager.GetASCIIArt();
+            int windowSize = windowManager.GetWindowSize();
+            int size = windowSize - 1;
+            Block[] blocks = new Block[1 + 3 * windowSize * (windowSize - 1)];
+            int index = 0;
+            for (int lineJ = -size; lineJ < windowSize; lineJ++)
+            {
+                for (int j = -size * 2; j <= size * 2; j++)
+                {
+                    // Calculate hex coordinate
+                    Hex.Hex coordinate = new Hex.Hex((j + 3 * lineJ) / 2, (j - 3 * lineJ) / 2);
+                    // Filter for "straight" hexes
+                    if (coordinate.LineJ == lineJ && coordinate.J == j && coordinate.InRange(windowSize))
+                    {
+                        blocks[index] = SafeGetBlock(coordinateManager.ToAbsolute(coordinate));
+                        index++;
+                    }
+                }
+            }
+            return blocks;
+        }
+        public int GetRadius()
+        {
+            return windowManager.GetWindowSize();
         }
     }
 }
