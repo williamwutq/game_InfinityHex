@@ -23,7 +23,7 @@ partial class ProgramInfo
     public static string OSDescription => System.Runtime.InteropServices.RuntimeInformation.OSDescription;
 }
 
-/*
+//*
 partial class Program
 {
     // Initialization code. Don't use any Avalonia, third-party APIs or any
@@ -39,4 +39,4 @@ partial class Program
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<UI.App>().UsePlatformDetect().WithInterFont().LogToTrace();
 }
-/*/
+//*/

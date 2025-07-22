@@ -1,3 +1,4 @@
+using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
@@ -78,6 +79,29 @@ namespace game_InfinityHex.UI
         {
             coloredBlock.SetColor(newColorIndex);
             UpdateFilledColor();
+        }
+    }
+
+    public class HexagonGrid : Control
+    {
+        private readonly Core.IHexPrintable backend;
+        private readonly ColorManager colorManager;
+        private CoupledHexagon[] hexagons;
+        public HexagonGrid(Core.IHexPrintable hexPrintable, ThemeManager themeManager)
+        {
+            // Check inputs
+            ArgumentNullException.ThrowIfNull(hexPrintable);
+            ArgumentNullException.ThrowIfNull(themeManager);
+            // Initialize internal trackers
+            backend = hexPrintable;
+            colorManager = new(themeManager);
+            // Initialize hexagons
+            Hex.Block[] blocks = backend.GetBlocks();
+            hexagons = new CoupledHexagon[blocks.Length];
+            for (int i = 0; i < blocks.Length; i++)
+            {
+                hexagons[i] = new CoupledHexagon(blocks[i], colorManager);
+            }
         }
     }
 }
