@@ -82,25 +82,39 @@ namespace game_InfinityHex.UI
         }
     }
 
-    public class HexagonGrid : Control
+    public class HexagonGrid : Canvas
     {
-        private readonly Core.IHexPrintable backend;
+        private const double SinOf60 = 0.866025403784439; // The value of sin(60 degrees)
+        private Core.IHexPrintable? backend;
         private readonly ColorManager colorManager;
-        private CoupledHexagon[] hexagons;
-        public HexagonGrid(Core.IHexPrintable hexPrintable, ThemeManager themeManager)
+        private CoupledHexagon[]? hexagons;
+        public HexagonGrid(Core.IHexPrintable? hexPrintable, ThemeManager themeManager)
         {
-            // Check inputs
-            ArgumentNullException.ThrowIfNull(hexPrintable);
-            ArgumentNullException.ThrowIfNull(themeManager);
             // Initialize internal trackers
             backend = hexPrintable;
             colorManager = new(themeManager);
             // Initialize hexagons
-            Hex.Block[] blocks = backend.GetBlocks();
-            hexagons = new CoupledHexagon[blocks.Length];
-            for (int i = 0; i < blocks.Length; i++)
+            InitializeHexagonsIfNotNull();
+        }
+
+        public void SetHexPrintable(Core.IHexPrintable? hexPrintable)
+        {
+            backend = hexPrintable;
+            InitializeHexagonsIfNotNull();
+        }
+
+        public void InitializeHexagonsIfNotNull()
+        {
+            if (backend != null)
             {
-                hexagons[i] = new CoupledHexagon(blocks[i], colorManager);
+                Hex.Block[] blocks = backend.GetBlocks();
+                hexagons = new CoupledHexagon[blocks.Length];
+                for (int i = 0; i < blocks.Length; i++)
+                {
+                    hexagons[i] = new CoupledHexagon(blocks[i], colorManager);
+                }
+                InvalidateArrange(); // Request a layout update to arrange the hexagons
+                InvalidateVisual(); // Request a redraw to apply the new hexagons
             }
         }
     }
