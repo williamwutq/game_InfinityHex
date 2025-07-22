@@ -1,6 +1,9 @@
 ﻿using Avalonia;
+using Engine;
 using game_InfinityHex.UI;
+using Interactive;
 using System;
+using System.Threading;
 
 namespace game_InfinityHex;
 
@@ -32,11 +35,34 @@ partial class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        // HexEngine hexEngine = SetUpBackend();
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+        
+        // Run(hexEngine);
     }
 
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<UI.App>().UsePlatformDetect().WithInterFont().LogToTrace();
+
+    /// <summary>
+    /// Sets up the backend for the game.
+    /// </summary>
+    public static HexEngine SetUpBackend()
+    {
+        HexEngine hexEngine = new HexEngine();
+        KeyboardListener listener = new KeyboardListener(hexEngine.GetDirectionManager());
+        listener.Start();
+        return hexEngine;
+    }
+
+    public static void Run(HexEngine hexEngine)
+    {
+        while (true)
+        {
+            Thread.Sleep(200);
+            hexEngine.Move();
+        }
+    }
 }
 //*/

@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Engine;
 
 namespace game_InfinityHex.UI
 {
@@ -21,7 +22,7 @@ namespace game_InfinityHex.UI
                 : ProgramInfo.GameName;
 
             // Initialize with LaunchPanel
-            mainControl = new LaunchPage();
+            mainControl = new HexagonGrid(Program.SetUpBackend(), ThemeManager.DefaultManager);
             Content = mainControl;
 
             InitializeComponent();
