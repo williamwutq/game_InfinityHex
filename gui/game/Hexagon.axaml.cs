@@ -107,14 +107,37 @@ namespace game_InfinityHex.UI
         {
             if (backend != null)
             {
+                // Get the blocks from the backend
                 Hex.Block[] blocks = backend.GetBlocks();
+                // Create hexagon based on the blocks
                 hexagons = new CoupledHexagon[blocks.Length];
                 for (int i = 0; i < blocks.Length; i++)
                 {
                     hexagons[i] = new CoupledHexagon(blocks[i], colorManager);
+                    Children.Add(hexagons[i]);
                 }
                 InvalidateArrange(); // Request a layout update to arrange the hexagons
                 InvalidateVisual(); // Request a redraw to apply the new hexagons
+            }
+        }
+        public void UpdateLayout(double width, double height)
+        {
+            if (hexagons == null || backend == null)
+                return;
+
+            // Get the radius from the backend
+            int radius = backend.GetRadius();
+            double hexagonSize = width / (radius * 2);
+            Console.WriteLine($"Hexagon size: {hexagonSize}");
+
+            // Arrange hexagons in a grid layout
+            for (int i = 0; i < hexagons.Length; i++)
+            {
+                Hex.Block block = backend.GetBlocks()[i];
+                hexagons[i].ChangeBlock(block);
+                Canvas.SetLeft(hexagons[i], block.X * hexagonSize);
+                Canvas.SetTop(hexagons[i], block.Y * hexagonSize);
+                // hexagons[i].SetFillColor(colorManager.InterpretColor(block.Color()));
             }
         }
     }

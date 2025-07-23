@@ -6,7 +6,7 @@ namespace game_InfinityHex.UI
 {
     public partial class MainWindow : Window
     {
-        private Control mainControl;
+        private HexagonGrid mainControl;
 
         public MainWindow()
         {
@@ -24,12 +24,19 @@ namespace game_InfinityHex.UI
             // Initialize with LaunchPanel
             mainControl = new HexagonGrid(Program.SetUpBackend(), ThemeManager.DefaultManager);
             Content = mainControl;
+            LayoutUpdated += (sender, e) =>
+            {
+                if (Bounds.Width > 0 && Bounds.Height > 0)
+                {
+                    mainControl.UpdateLayout(Bounds.Width, Bounds.Height);
+                }
+            };
 
             InitializeComponent();
         }
         public void ChangeControl(Control newControl)
         {
-            mainControl = newControl;
+            // mainControl = newControl;
             Content = mainControl;
         }
     }
