@@ -28,8 +28,8 @@ namespace game_InfinityHex.UI
                 new(width, topHeight),
                 new(width, buttomHeight),
                 new(halfWidth, height),
-                new(0, topHeight * 3),
                 new(0, buttomHeight),
+                new(0, topHeight),
             };
 
             var geometry = new StreamGeometry();
@@ -56,6 +56,12 @@ namespace game_InfinityHex.UI
     {
         private Hex.Block coloredBlock;
         private readonly ColorManager colorManager;
+        public CoupledHexagon(Hex.Hex coordinate, int colorIndex, ColorManager colorManager)
+        {
+            this.colorManager = colorManager;
+            this.coloredBlock = new Hex.Block(coordinate);
+            ChangeBlockColor(colorIndex);
+        }
         public CoupledHexagon(Hex.Hex coordinate, ColorManager colorManager)
         {
             this.colorManager = colorManager;
@@ -65,6 +71,7 @@ namespace game_InfinityHex.UI
         {
             this.colorManager = colorManager;
             this.coloredBlock = coloredBlock;
+            UpdateFilledColor();
         }
         private void UpdateFilledColor()
         {
@@ -80,6 +87,14 @@ namespace game_InfinityHex.UI
             coloredBlock.SetColor(newColorIndex);
             UpdateFilledColor();
         }
+        public double GetX()
+        {
+            return coloredBlock.X;
+        }
+        public double GetY()
+        {
+            return coloredBlock.Y;
+        }
     }
 
     public class HexagonGrid : Canvas
@@ -87,12 +102,12 @@ namespace game_InfinityHex.UI
         private const double SinOf60 = 0.866025403784439; // The value of sin(60 degrees)
         private Core.IHexPrintable? backend;
         private readonly ColorManager colorManager;
-        private CoupledHexagon[]? hexagons;
         public HexagonGrid(Core.IHexPrintable? hexPrintable, ThemeManager themeManager)
         {
             // Initialize internal trackers
             backend = hexPrintable;
             colorManager = new(themeManager);
+            Background = themeManager.FetchBrush("Background_Color");
             // Initialize hexagons
             InitializeHexagonsIfNotNull();
         }
@@ -109,35 +124,34 @@ namespace game_InfinityHex.UI
             {
                 // Get the blocks from the backend
                 Hex.Block[] blocks = backend.GetBlocks();
+                Children.Clear();
+
                 // Create hexagon based on the blocks
-                hexagons = new CoupledHexagon[blocks.Length];
                 for (int i = 0; i < blocks.Length; i++)
                 {
-                    hexagons[i] = new CoupledHexagon(blocks[i], colorManager);
-                    Children.Add(hexagons[i]);
+                    Children.Add(new CoupledHexagon(blocks[i], colorManager));
                 }
                 InvalidateArrange(); // Request a layout update to arrange the hexagons
-                InvalidateVisual(); // Request a redraw to apply the new hexagons
             }
         }
         public void UpdateLayout(double width, double height)
         {
-            if (hexagons == null || backend == null)
-                return;
-
-            // Get the radius from the backend
-            int radius = backend.GetRadius();
-            double hexagonSize = width / (radius * 2);
-            Console.WriteLine($"Hexagon size: {hexagonSize}");
-
-            // Arrange hexagons in a grid layout
-            for (int i = 0; i < hexagons.Length; i++)
+            // Calculate the radius based on the width and height
+            double min = Math.Min(width * SinOf60, height);
+            double count = backend?.GetRadius() ?? 1;
+            double radius = min / (count * 2);
+            foreach (var child in Children)
             {
-                Hex.Block block = backend.GetBlocks()[i];
-                hexagons[i].ChangeBlock(block);
-                Canvas.SetLeft(hexagons[i], block.X * hexagonSize);
-                Canvas.SetTop(hexagons[i], block.Y * hexagonSize);
-                // hexagons[i].SetFillColor(colorManager.InterpretColor(block.Color()));
+                if (child is CoupledHexagon hexagon)
+                {
+                    // hexagon.UpdateFilledColor();
+                    hexagon.Height = radius * 2;
+                    hexagon.Width = hexagon.Height * SinOf60;
+                    // Calculate the position of the hexagon
+                    // Set the position of the hexagon
+                    Canvas.SetLeft(hexagon, hexagon.GetX() * radius * 2);
+                    Canvas.SetTop(hexagon, hexagon.GetY() * radius * 2);
+                }
             }
         }
     }
