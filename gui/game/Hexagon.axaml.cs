@@ -143,9 +143,14 @@ namespace game_InfinityHex.UI
         public void UpdateLayout(double width, double height)
         {
             // Calculate the radius based on the width and height
-            double min = Math.Min(width * SinOf60, height);
-            double count = backend?.GetRadius() ?? 1;
-            double radius = min / (count * 2);
+            double rawRadius = backend?.GetRadius() ?? 1;
+            double widthRatio = (rawRadius * 2 - 1) * SinOf60;
+            double heightRatio = rawRadius * 1.5 - 0.5;
+            double diameter = Math.Min(width / widthRatio, height / heightRatio);
+            double radius = diameter * 0.5;
+            // Calculate the centering offset
+            double leftOffset = width * 0.5 - radius * SinOf60;
+            double topOffset = height * 0.5 - radius;
             foreach (var child in Children)
             {
                 if (child is CoupledHexagon hexagon)
@@ -155,8 +160,8 @@ namespace game_InfinityHex.UI
                     hexagon.Width = hexagon.Height * SinOf60;
                     // Calculate the position of the hexagon
                     // Set the position of the hexagon
-                    Canvas.SetLeft(hexagon, hexagon.GetX() * radius * 2);
-                    Canvas.SetTop(hexagon, hexagon.GetY() * radius * 2);
+                    Canvas.SetLeft(hexagon, hexagon.GetX() * diameter + leftOffset);
+                    Canvas.SetTop(hexagon, hexagon.GetY() * diameter + topOffset);
                 }
             }
         }
