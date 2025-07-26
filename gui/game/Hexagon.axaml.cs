@@ -7,6 +7,7 @@ namespace game_InfinityHex.UI
 {
     public class Hexagon : Control
     {
+        private const double gapRatio = 0.05;
         private IBrush? FillColor;
         public Hexagon()
         {
@@ -15,21 +16,26 @@ namespace game_InfinityHex.UI
         public override void Render(DrawingContext context)
         {
             base.Render(context);
-
             double width = Bounds.Width;
             double height = Bounds.Height;
             double halfWidth = width / 2;
-            double topHeight = height / 4;
-            double buttomHeight = topHeight * 3;
+            double halfHeight = height / 2;
+            double leftWidth = width * gapRatio;
+            double rightWidth = width - leftWidth;
+            double buttomHeight = height * gapRatio;
+            double topHeight = height - buttomHeight;
+            double heightAdjustment = halfHeight * (1 - gapRatio) / 2;
+            double upperHeight = halfHeight + heightAdjustment;
+            double lowerHeight = halfHeight - heightAdjustment;
 
             // Define hexagon points (top flat)
             Point[] points = {
-                new(halfWidth, 0),
-                new(width, topHeight),
-                new(width, buttomHeight),
-                new(halfWidth, height),
-                new(0, buttomHeight),
-                new(0, topHeight),
+                new(halfWidth, buttomHeight),
+                new(rightWidth, lowerHeight),
+                new(rightWidth, upperHeight),
+                new(halfWidth, topHeight),
+                new(leftWidth, upperHeight),
+                new(leftWidth, lowerHeight),
             };
 
             var geometry = new StreamGeometry();
