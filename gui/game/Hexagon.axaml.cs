@@ -203,12 +203,26 @@ namespace game_InfinityHex.UI
             return coloredBlock.Y;
         }
     }
-
+    /// <summary>
+    /// Represents a hexagon grid control that displays hexagonal blocks in a grid layout.
+    /// This control is used to render the hexagonal grid in the game UI, allowing for dynamic updates and interactions.
+    /// It inherits from <see cref="Canvas"/> to allow for custom layout and rendering of hexagonal shapes.
+    /// </summary>
     public class HexagonGrid : Canvas
     {
         private const double SinOf60 = 0.866025403784439; // The value of sin(60 degrees)
         private Core.IHexPrintable? backend;
         private readonly ColorManager colorManager;
+        /// <summary>
+        /// Initializes a new instance of the HexagonGrid class with a specified backend and theme manager.
+        /// </summary>
+        /// <param name="hexPrintable">The backend that provides the hexagon grid data.</param>
+        /// <param name="themeManager">The theme manager used to fetch colors and styles.</param>
+        /// <remarks>
+        /// This constructor initializes the hexagon grid with a specified backend that implements <see cref="Core.IHexPrintable"/>,
+        /// and sets the background color using the theme manager. It also initializes the internal color manager to handle color interpretations.
+        /// The hexagon grid is designed to display the hexagonal blocks in a grid layout, and it will update its layout based on the bounds of the control.
+        /// </remarks>
         public HexagonGrid(Core.IHexPrintable? hexPrintable, ThemeManager themeManager)
         {
             // Initialize internal trackers
@@ -217,6 +231,20 @@ namespace game_InfinityHex.UI
             SetHexPrintable(hexPrintable);
         }
 
+        /// <summary>
+        /// Sets the backend for the hexagon grid and subscribes to the OnHexRender event.
+        /// This method updates the hexagon grid whenever the backend triggers a render event.
+        /// </summary>
+        /// <param name="hexPrintable">The hex printable object containing the grid data to render.</param>
+        /// <remarks>
+        /// This method sets the backend for the hexagon grid, allowing it to receive updates from the backend.
+        /// If the current thread is not the UI thread, it dispatches the update to the UI thread to ensure thread safety.
+        /// For rendering, it subscribes to the OnHexRender event of the backend, which will trigger the hexagon grid
+        /// to update its layout and colors whenever the backend is updated. Each time only when the grid is updated,
+        /// it will recolor the hexagons using <see cref="Hexagon.ChangeBlockColor"/> method based on the current state
+        /// of the backend. If the grid size is changed, it will reinitialize the hexagons to match the new size using
+        /// the <see cref="InitializeHexagonsIfNotNull"/> method.
+        /// </remarks>
         public void SetHexPrintable(Core.IHexPrintable? hexPrintable)
         {
             backend = hexPrintable;
@@ -261,6 +289,14 @@ namespace game_InfinityHex.UI
             }
             InitializeHexagonsIfNotNull();
         }
+        /// <summary>
+        /// Initializes the hexagons in the grid based on the blocks from the backend.
+        /// This method clears the existing children and creates new hexagons based on the blocks provided by the backend.
+        /// </summary>
+        /// <remarks>
+        /// This method is called when the backend is set or when the hexagons need to be initialized or reinitialized.
+        /// It ensures that the hexagons are created based on the current state of the backend's block array.
+        /// </remarks>
         public void InitializeHexagonsIfNotNull()
         {
             if (backend != null)
@@ -277,6 +313,18 @@ namespace game_InfinityHex.UI
                 InvalidateArrange(); // Request a layout update to arrange the hexagons
             }
         }
+        /// <summary>
+        /// Updates the layout of the hexagon grid based on the current bounds of the control.
+        /// This method calculates the radius of the hexagons based on the control's width and height,
+        /// and positions each hexagon accordingly.
+        /// </summary>
+        /// <param name="width">The width of the control.</param>
+        /// <param name="height">The height of the control.</param>
+        /// <remarks>
+        /// This method is called whenever the layout of the control is updated, ensuring that the hexagons are properly sized and positioned within the control.
+        /// The hexagons are arranged in a grid pattern, with each hexagon's position calculated based on its coordinate in the hexagonal grid.
+        /// The hexagons are centered within the control, and their size is adjusted based on the control's dimensions.
+        /// </remarks>
         public void UpdateLayout(double width, double height)
         {
             // Calculate the radius based on the width and height
