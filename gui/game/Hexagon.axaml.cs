@@ -5,14 +5,39 @@ using Avalonia.Media;
 
 namespace game_InfinityHex.UI
 {
+    /// <summary>
+    /// Represents a hexagon shape used in the game UI.
+    /// This class inherits from <see cref="Control"/> and provides methods to render a hexagon with a specified fill color.
+    /// </summary>
+    /// <remarks>
+    /// The hexagon is rendered with a top-flat orientation, and the fill color can be set using the <see cref="SetFillColor(IBrush?)"/> method.
+    /// The hexagon's dimensions are determined by the bounds of the control, and it is centered and filled within its allocated space.
+    /// During rendering, the hexagon is drawn with a gap of 5% of its width and height to create a visually appealing layout and to distinguish it from adjacent hexagons.
+    /// </remarks>
     public class Hexagon : Control
     {
         private const double gapRatio = 0.05;
         private IBrush? FillColor;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Hexagon"/> class.
+        /// </summary>
+        /// <remarks>
+        /// This constructor initializes the hexagon with no fill color.
+        /// The fill color can be set later using the <see cref="SetFillColor(IBrush?)"/> method.
+        /// </remarks>
         public Hexagon()
         {
             FillColor = null;
         }
+        /// <summary>
+        /// Renders the hexagon shape using the specified fill color.
+        /// </summary>
+        /// <param name="context">The drawing context used to render the hexagon.</param>
+        /// <remarks>
+        /// This method calculates the points of the hexagon based on the control's bounds and draws the hexagon using the specified fill color.
+        /// The hexagon is rendered with a top-flat orientation, and the points are calculated to ensure it fits within the control's dimensions.
+        /// The hexagon is centered within the control, and its size is adjusted based on the bounds of the control.
+        /// </remarks>
         public override void Render(DrawingContext context)
         {
             base.Render(context);
@@ -51,6 +76,10 @@ namespace game_InfinityHex.UI
                 context.DrawGeometry(FillColor, null, geometry);
             }
         }
+        /// <summary>
+        /// Sets the fill color of the hexagon. This will invalidate the visual to apply the new color.
+        /// </summary>
+        /// <param name="color">The brush to use as the fill color for the hexagon.</param>
         public void SetFillColor(IBrush? color)
         {
             FillColor = color;
@@ -58,45 +87,105 @@ namespace game_InfinityHex.UI
         }
     }
 
+    /// <summary>
+    /// This class extends from <see cref="Hexagon"/> and is used to represent a hexagon in the game that is coupled with a block.
+    /// It is used to display the hexagon in the UI and to change its color.
+    /// </summary>
     public class CoupledHexagon : Hexagon
     {
         private Hex.Block coloredBlock;
         private readonly ColorManager colorManager;
+        /// <summary>
+        /// Initializes a new instance of the CoupledHexagon class with a specified coordinate and color index.
+        /// </summary>
+        /// <param name="coordinate">The coordinate of the hexagon.</param>
+        /// <param name="colorIndex">The color index of the hexagon.</param>
+        /// <param name="colorManager">The color manager used to interpret the color index.</param>
+        /// <remarks>
+        /// This constructor initializes the hexagon with a specified coordinate and color index,
+        /// and sets the fill color based on the color index using the provided color manager.
+        /// </remarks>
         public CoupledHexagon(Hex.Hex coordinate, int colorIndex, ColorManager colorManager)
         {
             this.colorManager = colorManager;
             this.coloredBlock = new Hex.Block(coordinate);
             ChangeBlockColor(colorIndex);
         }
+        /// <summary>
+        /// Initializes a new instance of the CoupledHexagon class with a specified coordinate and color manager.
+        /// </summary>
+        /// <param name="coordinate">The coordinate of the hexagon.</param>
+        /// <param name="colorManager">The color manager used to interpret the color of the block.</param>
+        /// <remarks>
+        /// This constructor initializes the hexagon with a specified coordinate with the inital color index of -1 (unoccupied),
+        /// and sets the fill color based on the block's color using the provided color manager.
+        /// </remarks>
         public CoupledHexagon(Hex.Hex coordinate, ColorManager colorManager)
         {
             this.colorManager = colorManager;
             this.coloredBlock = new Hex.Block(coordinate);
         }
+        /// <summary>
+        /// Initializes a new instance of the CoupledHexagon class with a specified colored block.
+        /// </summary>
+        /// <param name="coloredBlock">The colored block associated with the hexagon.</param>
+        /// <param name="colorManager">The color manager used to interpret the color of the block.</param>
+        /// <remarks>
+        /// This constructor initializes the hexagon with a specified colored block,
+        /// and sets the fill color based on the block's color using the provided color manager.
+        /// </remarks>
         public CoupledHexagon(Hex.Block coloredBlock, ColorManager colorManager)
         {
             this.colorManager = colorManager;
             this.coloredBlock = coloredBlock;
             UpdateFilledColor();
         }
+        /// <summary>
+        /// Updates the fill color of the hexagon based on the color of the associated block.
+        /// </summary>
+        /// <remarks>
+        /// This method retrieves the color index of the associated block and interprets it using the color manager,
+        /// then sets the fill color of the hexagon accordingly. This methid is called during initialization and
+        /// whenever the block color changes.
+        /// </remarks>
         private void UpdateFilledColor()
         {
             SetFillColor(colorManager.InterpretColor(coloredBlock.Color()));
         }
+        /// <summary>
+        /// Changes the associated block of the hexagon. This also updates the fill color of the hexagon.
+        /// </summary>
+        /// <param name="newBlock">The new block to associate with the hexagon.</param>
+        /// <remarks>
+        /// For safer usage, prefer <see cref="ChangeBlockColor(int)"/> to change the color of the block instead of replacing the block.
+        /// </remarks>
         public void ChangeBlock(Hex.Block newBlock)
         {
             coloredBlock = newBlock;
             UpdateFilledColor();
         }
+        /// <summary>
+        /// Changes the color of the associated block and updates the fill color of the hexagon.
+        /// </summary>
+        /// <param name="newColorIndex">The new color index to set for the block.</param>
         public void ChangeBlockColor(int newColorIndex)
         {
             coloredBlock.SetColor(newColorIndex);
             UpdateFilledColor();
         }
+        /// <summary>
+        /// Gets the x coordinate of the hexagon. See <see cref="Hex.Hex.X"/> for implementation details about the coordinate system.
+        /// </summary>
+        /// <returns>The Cartesian X coordinate of the hexagon.</returns>
         public double GetX()
         {
             return coloredBlock.X;
         }
+        /// <summary>
+        /// Gets the y coordinate of the hexagon. See <see cref="Hex.Hex.Y"/> for implementation details about the coordinate system.
+        /// </summary>
+        /// <returns>The Cartesian Y coordinate of the hexagon.</returns>
+        /// <remarks>
         public double GetY()
         {
             return coloredBlock.Y;
