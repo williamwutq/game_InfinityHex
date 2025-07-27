@@ -1,6 +1,5 @@
 ﻿using Avalonia;
 using Engine;
-using game_InfinityHex.UI;
 using Interactive;
 using System;
 using System.Threading;
@@ -58,11 +57,18 @@ partial class Program
 
     public static void Run(HexEngine hexEngine)
     {
-        while (true)
+        Thread thread = new Thread(() =>
         {
-            Thread.Sleep(200);
-            hexEngine.Move();
-        }
+            while (true)
+            {
+                Thread.Sleep(200);
+
+                hexEngine.Move();
+                // Console.WriteLine(((Core.IHexPrintable)hexEngine).GetASCIIArt());
+            }
+        });
+        thread.IsBackground = true;
+        thread.Start();
     }
 }
 //*/

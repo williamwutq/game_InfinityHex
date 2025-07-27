@@ -22,7 +22,8 @@ namespace game_InfinityHex.UI
                 : ProgramInfo.GameName;
 
             // Initialize with LaunchPanel
-            mainControl = new HexagonGrid(Program.SetUpBackend(), ThemeManager.DefaultManager);
+            var backend = Program.SetUpBackend();
+            mainControl = new HexagonGrid(backend, ThemeManager.DefaultManager);
             Content = mainControl;
             LayoutUpdated += (sender, e) =>
             {
@@ -33,6 +34,7 @@ namespace game_InfinityHex.UI
             };
 
             InitializeComponent();
+            Program.Run(backend);
         }
         public void ChangeControl(Control newControl)
         {
