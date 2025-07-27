@@ -308,7 +308,7 @@ namespace game_InfinityHex.UI
                 // Create hexagon based on the blocks
                 for (int i = 0; i < blocks.Length; i++)
                 {
-                    Children.Add(new CoupledHexagon(blocks[i], colorManager));
+                    Children.Add(new CoupledHexagon(blocks[i].Clone(), colorManager));
                 }
                 InvalidateArrange(); // Request a layout update to arrange the hexagons
             }
