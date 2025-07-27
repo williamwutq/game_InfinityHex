@@ -147,7 +147,7 @@ namespace game_InfinityHex.UI
             ArgumentNullException.ThrowIfNull(colorManager);
             ArgumentNullException.ThrowIfNull(coloredBlock);
             this.colorManager = colorManager;
-            this.coloredBlock = coloredBlock;
+            this.coloredBlock = coloredBlock.Clone();
             UpdateFilledColor();
         }
         /// <summary>
@@ -173,7 +173,7 @@ namespace game_InfinityHex.UI
         public void ChangeBlock(Hex.Block newBlock)
         {
             ArgumentNullException.ThrowIfNull(newBlock);
-            coloredBlock = newBlock;
+            coloredBlock = newBlock.Clone();
             UpdateFilledColor();
         }
         /// <summary>
@@ -308,7 +308,7 @@ namespace game_InfinityHex.UI
                 // Create hexagon based on the blocks
                 for (int i = 0; i < blocks.Length; i++)
                 {
-                    Children.Add(new CoupledHexagon(blocks[i].Clone(), colorManager));
+                    Children.Add(new CoupledHexagon(blocks[i], colorManager));
                 }
                 InvalidateArrange(); // Request a layout update to arrange the hexagons
             }
