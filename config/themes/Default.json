@@ -21,6 +21,8 @@
     "Launch_Button_Text_Font": "Times New Roman",
     "Launch_Button_Text_Color": "#FFFFFF",
     "Launch_Button_Background_Color": "#000000",
+    "Unoccupied_Block_Color": "#222222",
+    "Filled_Block_Color": "#888888",
     "0_Indexed_Block_Color": "#FF0000",
     "1_Indexed_Block_Color": "#FFFF00",
     "2_Indexed_Block_Color": "#008000",
