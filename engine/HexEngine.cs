@@ -835,7 +835,7 @@ namespace Engine
                 return first;
             }
         }
-        private void ResetEngine()
+        public void ResetEngine()
         {
             cache.Clear();
             timeReferenceManager.Reset();

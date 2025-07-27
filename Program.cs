@@ -53,6 +53,7 @@ partial class Program
         KeyboardListener.SuppressConsole();
         HexEngine hexEngine = new HexEngine();
         KeyboardListener listener = new KeyboardListener(window, hexEngine.GetDirectionManager());
+        listener.AttatchEscapeEventHandler(hexEngine.ResetEngine);
         listener.Start();
         return hexEngine;
     }
