@@ -105,8 +105,11 @@ namespace game_InfinityHex.UI
         /// This constructor initializes the hexagon with a specified coordinate and color index,
         /// and sets the fill color based on the color index using the provided color manager.
         /// </remarks>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="colorManager"/> or <paramref name="coordinate"/> is null.</exception>
         public CoupledHexagon(Hex.Hex coordinate, int colorIndex, ColorManager colorManager)
         {
+            ArgumentNullException.ThrowIfNull(colorManager);
+            ArgumentNullException.ThrowIfNull(coordinate);
             this.colorManager = colorManager;
             this.coloredBlock = new Hex.Block(coordinate);
             ChangeBlockColor(colorIndex);
@@ -120,8 +123,11 @@ namespace game_InfinityHex.UI
         /// This constructor initializes the hexagon with a specified coordinate with the inital color index of -1 (unoccupied),
         /// and sets the fill color based on the block's color using the provided color manager.
         /// </remarks>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="colorManager"/> or <paramref name="coordinate"/> is null.</exception>
         public CoupledHexagon(Hex.Hex coordinate, ColorManager colorManager)
         {
+            ArgumentNullException.ThrowIfNull(colorManager);
+            ArgumentNullException.ThrowIfNull(coordinate);
             this.colorManager = colorManager;
             this.coloredBlock = new Hex.Block(coordinate);
         }
@@ -134,8 +140,11 @@ namespace game_InfinityHex.UI
         /// This constructor initializes the hexagon with a specified colored block,
         /// and sets the fill color based on the block's color using the provided color manager.
         /// </remarks>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="colorManager"/> or <paramref name="coloredBlock"/> is null.</exception>
         public CoupledHexagon(Hex.Block coloredBlock, ColorManager colorManager)
         {
+            ArgumentNullException.ThrowIfNull(colorManager);
+            ArgumentNullException.ThrowIfNull(coloredBlock);
             this.colorManager = colorManager;
             this.coloredBlock = coloredBlock;
             UpdateFilledColor();
@@ -159,8 +168,10 @@ namespace game_InfinityHex.UI
         /// <remarks>
         /// For safer usage, prefer <see cref="ChangeBlockColor(int)"/> to change the color of the block instead of replacing the block.
         /// </remarks>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="newBlock"/> is null.</exception>
         public void ChangeBlock(Hex.Block newBlock)
         {
+            ArgumentNullException.ThrowIfNull(newBlock);
             coloredBlock = newBlock;
             UpdateFilledColor();
         }
@@ -200,16 +211,36 @@ namespace game_InfinityHex.UI
         public HexagonGrid(Core.IHexPrintable? hexPrintable, ThemeManager themeManager)
         {
             // Initialize internal trackers
-            backend = hexPrintable;
+            SetHexPrintable(hexPrintable);
             colorManager = new(themeManager);
             Background = themeManager.FetchBrush("Background_Color");
-            // Initialize hexagons
-            InitializeHexagonsIfNotNull();
         }
 
         public void SetHexPrintable(Core.IHexPrintable? hexPrintable)
         {
             backend = hexPrintable;
+            if (backend != null)
+            {
+                backend.OnHexRender += (hex) =>
+                {
+                    if (backend.IsGridUpdated())
+                    {
+                        Hex.Block[] blocks = backend.GetBlocks();
+                        if (blocks.Length != Children.Count)
+                        {
+                            // If the number of blocks has changed, clear and reinitialize the hexagons
+                            InitializeHexagonsIfNotNull();
+                        }
+                        for (int i = 0; i < blocks.Length; i++)
+                        {
+                            if (Children[i] is CoupledHexagon hexagon)
+                            {
+                                hexagon.ChangeBlockColor(blocks[i].Color()); // This is safer than changing the blocks directly
+                            }
+                        }
+                    }
+                };
+            }
             InitializeHexagonsIfNotNull();
         }
 
