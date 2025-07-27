@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Avalonia.Controls;
 using Engine;
 using Interactive;
 using System;
@@ -47,10 +48,10 @@ partial class Program
     /// <summary>
     /// Sets up the backend for the game.
     /// </summary>
-    public static HexEngine SetUpBackend()
+    public static HexEngine SetUpBackend(Window window)
     {
         HexEngine hexEngine = new HexEngine();
-        KeyboardListener listener = new KeyboardListener(hexEngine.GetDirectionManager());
+        KeyboardListener listener = new KeyboardListener(window, hexEngine.GetDirectionManager());
         listener.Start();
         return hexEngine;
     }
