@@ -211,9 +211,9 @@ namespace game_InfinityHex.UI
         public HexagonGrid(Core.IHexPrintable? hexPrintable, ThemeManager themeManager)
         {
             // Initialize internal trackers
-            SetHexPrintable(hexPrintable);
             colorManager = new(themeManager);
             Background = themeManager.FetchBrush("Background_Color");
+            SetHexPrintable(hexPrintable);
         }
 
         public void SetHexPrintable(Core.IHexPrintable? hexPrintable)
