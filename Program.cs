@@ -50,6 +50,7 @@ partial class Program
     /// </summary>
     public static HexEngine SetUpBackend(Window window)
     {
+        KeyboardListener.SuppressConsole();
         HexEngine hexEngine = new HexEngine();
         KeyboardListener listener = new KeyboardListener(window, hexEngine.GetDirectionManager());
         listener.Start();

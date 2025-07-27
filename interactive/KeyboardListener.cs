@@ -19,10 +19,23 @@ namespace Interactive
     /// </summary>
     public class KeyboardListener
     {
-        private static readonly bool InConsole = !Console.IsInputRedirected;
+        private static bool InConsole = !Console.IsInputRedirected && Environment.UserInteractive;
         private readonly Window? window;
         private readonly Core.DirectionManager directionManager;
         private readonly System.Threading.CancellationTokenSource cts = new();
+        /// <summary>
+        /// Suppresses console input by redirecting it to an empty string reader.
+        /// This is useful when the application is running in a GUI context and console input should not interfere with the UI.
+        /// </summary>
+        public static void SuppressConsole()
+        {
+            if (InConsole)
+            {
+                // Disable console input
+                Console.SetIn(new System.IO.StringReader(string.Empty));
+                InConsole = false;
+            }
+        }
         /// <summary>
         /// Creates a new keyboard direction listener that processes key input on a background thread.
         /// </summary>
