@@ -100,5 +100,14 @@ namespace Core
         /// Rendering systems can use this to decide whether to redraw the grid or not.
         /// </remarks>
         abstract bool IsGridUpdated();
+        /// <summary>
+        /// Delegate for rendering the hexagon grid.
+        /// </summary>
+        /// <param name="hexPrintable">The hex printable object containing the grid data to render.</param>
+        public delegate void HexRenderDelegate(IHexPrintable hexPrintable);
+        /// <summary>
+        /// Event triggered to render the hexagon grid.
+        /// </summary>
+        public event HexRenderDelegate? OnHexRender;
     }
 }
