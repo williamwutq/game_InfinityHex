@@ -643,6 +643,7 @@ namespace Engine
         private readonly WindowManager windowManager;
         private readonly BlockGenerator blockGenerator;
         private readonly DirectionManager directionManager;
+        public event IHexPrintable.HexRenderDelegate? OnHexRender;
         public HexEngine()
         {
             cache = new();
@@ -737,6 +738,7 @@ namespace Engine
                 }
                 // Mark the grid as updated
                 updated = true;
+                OnHexRender?.Invoke(this);
             }
             else throw new ArgumentOutOfRangeException("Move offset exceed 7-Block grid definition range");
         }
