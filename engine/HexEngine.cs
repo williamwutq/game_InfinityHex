@@ -6,6 +6,7 @@ using System.Text;
 using Hex;
 using Core;
 using System.Numerics;
+using System.Threading;
 
 namespace Engine
 {
@@ -634,6 +635,7 @@ namespace Engine
 
     public class HexEngine : IHexPrintable
     {
+        private volatile bool updated = false;
         private readonly LinkedList<TimedObject<Block>> cache;
         private readonly CoordinateManager coordinateManager;
         private readonly TimeReferenceManager timeReferenceManager;
@@ -733,6 +735,8 @@ namespace Engine
                 {
                     cache.RemoveLast();
                 }
+                // Mark the grid as updated
+                updated = true;
             }
             else throw new ArgumentOutOfRangeException("Move offset exceed 7-Block grid definition range");
         }
@@ -876,6 +880,12 @@ namespace Engine
         public int GetRadius()
         {
             return windowManager.GetWindowSize();
+        }
+        public bool IsGridUpdated()
+        {
+            bool isUpdated = updated;
+            updated = false; // Reset the update status after checking
+            return isUpdated;
         }
     }
 }

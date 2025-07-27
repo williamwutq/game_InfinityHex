@@ -148,7 +148,7 @@ namespace game_InfinityHex.UI
         /// then sets the fill color of the hexagon accordingly. This methid is called during initialization and
         /// whenever the block color changes.
         /// </remarks>
-        private void UpdateFilledColor()
+        public void UpdateFilledColor()
         {
             SetFillColor(colorManager.InterpretColor(coloredBlock.Color()));
         }
@@ -244,7 +244,6 @@ namespace game_InfinityHex.UI
             {
                 if (child is CoupledHexagon hexagon)
                 {
-                    // hexagon.UpdateFilledColor();
                     hexagon.Height = radius * 2;
                     hexagon.Width = hexagon.Height * SinOf60;
                     // Calculate the position of the hexagon

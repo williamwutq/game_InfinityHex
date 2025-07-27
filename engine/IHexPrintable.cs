@@ -41,7 +41,7 @@ namespace Core
             int radius = GetRadius();
             Block[] blocks = GetBlocks();
             int index = 0;
-            StringBuilder sb = new ();
+            StringBuilder sb = new();
             for (int i = 0; i < radius; i++)
             {
                 sb.Append(new string(' ', radius - i));
@@ -91,5 +91,14 @@ namespace Core
         /// </summary>
         /// <returns>The radius of the hexagon grid.</returns>
         abstract int GetRadius();
+        /// <summary>
+        /// Return whether the grid is updated. When this method is called, the grid update status should be set to false until the next update.
+        /// </summary>
+        /// <returns>True if the grid is updated, false otherwise.</returns>
+        /// <remarks>
+        /// This method is used to determine if the hexagon grid has been updated since the last check.
+        /// Rendering systems can use this to decide whether to redraw the grid or not.
+        /// </remarks>
+        abstract bool IsGridUpdated();
     }
 }
