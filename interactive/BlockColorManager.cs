@@ -31,9 +31,33 @@ public class ColorManager
     /// </summary>
     /// <param name="index">The color index of the block.</param>
     /// <returns>A string key used to fetch the corresponding brush from the theme.</returns>
+    /// <remarks>
+    /// The method generates a key based on the index:
+    /// <list type="bullet">
+    /// <item><description>For non-negative indices, it returns "{index}_Indexed_Block_Color".</description></item>
+    /// <item><description>For -1, it returns "Unoccupied_Block_Color".</description></item>
+    /// <item><description>For -2, it returns "Filled_Block_Color".</description></item>
+    /// <item><description>For any other negative index, it returns "Unknown_Block_Color".</description></item>
+    /// </list>
+    /// </remarks>
     private static String PrepareColorKey(int index)
     {
-        return $"{index}_Indexed_Block_Color";
+        if (index >= 0)
+        {
+            return $"{index}_Indexed_Block_Color";
+        }
+        else if (index == -1)
+        {
+            return "Unoccupied_Block_Color";
+        }
+        else if (index == -2)
+        {
+            return "Filled_Block_Color";
+        }
+        else
+        {
+            return "Unknown_Block_Color";
+        }
     }
     /// <summary>
     /// Interprets the color for a block based on its color index.
