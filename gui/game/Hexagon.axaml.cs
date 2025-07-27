@@ -122,7 +122,9 @@ namespace game_InfinityHex.UI
         /// <param name="colorManager">The color manager used to interpret the color of the block.</param>
         /// <remarks>
         /// This constructor initializes the hexagon with a specified coordinate with the inital color index of -1 (unoccupied),
-        /// and sets the fill color based on the block's color using the provided color manager.
+        /// and sets the fill color based on the block's color using the provided color manager. This allows the hexagon to be coupled with a specific block,
+        /// enabling dynamic updates to its color and appearance, while ensuring constant coordinate reference for rendering. The internal block prevents potential rendering issues
+        /// when the underlying block may be modified, merged, or garbage collected by backend mechanisms.
         /// </remarks>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="colorManager"/> or <paramref name="coordinate"/> is null.</exception>
         public CoupledHexagon(Hex.Hex coordinate, ColorManager colorManager)
@@ -138,8 +140,11 @@ namespace game_InfinityHex.UI
         /// <param name="coloredBlock">The colored block associated with the hexagon.</param>
         /// <param name="colorManager">The color manager used to interpret the color of the block.</param>
         /// <remarks>
-        /// This constructor initializes the hexagon with a specified colored block,
+        /// This constructor initializes the hexagon by cloning the provided colored block to ensure it has its own copy,
         /// and sets the fill color based on the block's color using the provided color manager.
+        /// This allows the hexagon to be coupled with a specific block, enabling dynamic updates to its color and appearance,
+        /// while ensuring that the referenced block alway exist when called by the rendering thread when the underlying block may be modified, 
+        /// merged, or garbage collected by backend mechanisms, preventing potential rendering issues.
         /// </remarks>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="colorManager"/> or <paramref name="coloredBlock"/> is null.</exception>
         public CoupledHexagon(Hex.Block coloredBlock, ColorManager colorManager)
@@ -167,6 +172,9 @@ namespace game_InfinityHex.UI
         /// </summary>
         /// <param name="newBlock">The new block to associate with the hexagon.</param>
         /// <remarks>
+        /// This method clones the provided block and updates the internal reference to the colored block.
+        /// All fields of the block are copied, including the coordinate and color index. If the coordinate layout is changed, this may lead to unexpected behavior.
+        /// In addition, creation of a new block and sparse reference may degrade performance due to object creation and poor memory locality.
         /// For safer usage, prefer <see cref="ChangeBlockColor(int)"/> to change the color of the block instead of replacing the block.
         /// </remarks>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="newBlock"/> is null.</exception>
@@ -180,6 +188,10 @@ namespace game_InfinityHex.UI
         /// Changes the color of the associated block and updates the fill color of the hexagon.
         /// </summary>
         /// <param name="newColorIndex">The new color index to set for the block.</param>
+        /// <remarks>
+        /// This method is considered safer than directly update block because it does not update the reference used by the renderer,
+        /// which may potentially lead to references that will be modified, merged, or garbage collected by backend mechanisms.
+        /// </remarks>
         public void ChangeBlockColor(int newColorIndex)
         {
             coloredBlock.SetColor(newColorIndex);
