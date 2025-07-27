@@ -15,7 +15,7 @@ namespace Interactive
     /// - Left/Decrement: ←, A, Q, U, J
     /// - Right/Increment: →, D, E, O, L
     /// - Noop: ↑, W, I
-    /// - Escape: Stops the listener
+    /// - Escape: Quit the game
     /// </summary>
     public class KeyboardListener
     {
@@ -86,6 +86,13 @@ namespace Interactive
             }
         }
 
+
+        /// <summary>
+        /// Called when a key is pressed in the Avalonia window.
+        /// It interprets the key and issues commands to the DirectionManager.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The key event arguments containing the pressed key.</param>
         private void OnKeyDown(object? sender, Avalonia.Input.KeyEventArgs e)
         {
             switch (e.Key)
@@ -117,11 +124,19 @@ namespace Interactive
 
                 // Exit key: Esc
                 case Avalonia.Input.Key.Escape:
-                    Console.WriteLine("Esc Pressed.");
-                    Stop();
                     break;
             }
         }
+        /// <summary>
+        /// The main loop that listens for key inputs in a console environment.
+        /// It processes key inputs and issues commands to the DirectionManager.
+        /// </summary>
+        /// <param name="token">A cancellation token to stop the loop when requested.</param>
+        /// <remarks>
+        /// This method runs in a loop until the cancellation token is requested only if the listener is in a console environment.
+        /// It checks for key availability in the console and processes the key inputs accordingly.
+        /// </remarks>
+        /// <exception cref="ThreadInterruptedException">Thrown if the thread is interrupted while sleeping.</exception>
         private void ListenLoop(System.Threading.CancellationToken token)
         {
             while (!token.IsCancellationRequested)
@@ -164,11 +179,10 @@ namespace Interactive
 
                         // Exit key: Esc
                         case ConsoleKey.Escape:
-                            Console.WriteLine("Esc Pressed.");
-                            Stop();
                             break;
                     }
                 }
+                else break;
             }
         }
     }

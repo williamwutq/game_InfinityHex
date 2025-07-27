@@ -701,13 +701,13 @@ namespace Engine
                     {
                         // If occupied by snake, cause snake death
                         // Currently, only reset everything
-                        resetEngine();
+                        ResetEngine();
                     }
                     else if (snakeLength + 1 >= timeReferenceManager.GetRelativeExpire())
                     {
                         // If snake reach maximum length, end game
                         // Currently, only reset everything
-                        resetEngine();
+                        ResetEngine();
                     }
                     else
                     {
@@ -835,11 +835,8 @@ namespace Engine
                 return first;
             }
         }
-        private void resetEngine()
+        private void ResetEngine()
         {
-#if DEBUG
-            Console.WriteLine("RESET");
-#endif
             cache.Clear();
             timeReferenceManager.Reset();
             cache.AddFirst(timeReferenceManager.ConstructAbsoluteTimedObject<Block>(new Block(new Hex.Hex(), -2, true)));
