@@ -2,6 +2,7 @@ using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Threading;
 
 namespace game_InfinityHex.UI
 {
@@ -223,19 +224,36 @@ namespace game_InfinityHex.UI
             {
                 backend.OnHexRender += (hex) =>
                 {
-                    if (backend.IsGridUpdated())
+                    // Check if this is running on the UI thread
+                    if (!Dispatcher.UIThread.CheckAccess())
                     {
-                        Hex.Block[] blocks = backend.GetBlocks();
-                        if (blocks.Length != Children.Count)
+                        // If not on UI thread, dispatch to UI thread
+                        Dispatcher.UIThread.Post(() =>
                         {
-                            // If the number of blocks has changed, clear and reinitialize the hexagons
-                            InitializeHexagonsIfNotNull();
-                        }
-                        for (int i = 0; i < blocks.Length; i++)
+                            UpdateHexagons();
+                        });
+                    }
+                    else
+                    {
+                        // Already on UI thread, execute directly
+                        UpdateHexagons();
+                    }
+                    void UpdateHexagons()
+                    {
+                        if (backend.IsGridUpdated())
                         {
-                            if (Children[i] is CoupledHexagon hexagon)
+                            Hex.Block[] blocks = backend.GetBlocks();
+                            if (blocks.Length != Children.Count)
                             {
-                                hexagon.ChangeBlockColor(blocks[i].Color()); // This is safer than changing the blocks directly
+                                // If the number of blocks has changed, clear and reinitialize the hexagons
+                                InitializeHexagonsIfNotNull();
+                            }
+                            for (int i = 0; i < blocks.Length; i++)
+                            {
+                                if (Children[i] is CoupledHexagon hexagon)
+                                {
+                                    hexagon.ChangeBlockColor(blocks[i].Color()); // This is safer than changing the blocks directly
+                                }
                             }
                         }
                     }
@@ -243,7 +261,6 @@ namespace game_InfinityHex.UI
             }
             InitializeHexagonsIfNotNull();
         }
-
         public void InitializeHexagonsIfNotNull()
         {
             if (backend != null)
