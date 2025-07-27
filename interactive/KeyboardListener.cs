@@ -6,16 +6,18 @@ namespace Interactive
     /// <summary>
     /// A background listener that reads keyboard input and issues directional commands
     /// to a shared <see cref="DirectionManager"/> instance.
-    /// 
+    /// <para>
     /// This class is designed to run on a separate thread and interpret specific keys
     /// as directional rotation inputs or no-operations. It supports common arrow keys
     /// as well as alternative keys for ergonomic or layout flexibility.
-    ///
-    /// Mapped keys:
-    /// - Left/Decrement: ←, A, Q, U, J
-    /// - Right/Increment: →, D, E, O, L
-    /// - Noop: ↑, W, I
-    /// - Escape: Quit the game
+    /// </para>
+    /// Mapped keys
+    /// <list type="bullet">
+    /// <item>Left/Decrement: ←, A, Q, U, J</item>
+    /// <item>Right/Increment: →, D, E, O, L</item>
+    /// <item>Noop: ↑, W, I</item>
+    /// <item>Escape: Quit the game, or custom action implemented with <see cref="EscapeEventHandler"/></item>
+    /// </list>
     /// </summary>
     public class KeyboardListener
     {
@@ -86,6 +88,35 @@ namespace Interactive
             }
         }
 
+        /// <summary>
+        /// Handles the event of pressing the Escape key.
+        /// </summary>
+        /// <remarks>
+        /// This method is used to trigger an escape event, which can be used to exit the game or perform other actions.
+        /// It is designed to be attached to an event handler that responds to the Escape key being pressed.
+        /// </remarks>
+        public delegate void EscapeEventHandler();
+        /// <summary>
+        /// The internal event handler for the Escape key.
+        /// This handler is invoked when the Escape key is pressed, allowing for custom actions to be performed.
+        /// </summary>
+        private EscapeEventHandler? escapeEventHandler;
+        /// <summary>
+        /// Attaches an event handler for the Escape key.
+        /// This allows the listener to respond to Escape key presses with a custom action.
+        /// </summary>
+        /// <param name="handler">The event handler to attach for Escape key presses.</param>
+        public void AttatchEscapeEventHandler(EscapeEventHandler handler) {
+            escapeEventHandler = handler;
+        }
+        /// <summary>
+        /// Detaches the Escape key event handler.
+        /// This stops the listener from responding to Escape key presses.
+        /// </summary>
+        public void DetachEscapeEventHandler()
+        {
+            escapeEventHandler = null;
+        }
 
         /// <summary>
         /// Called when a key is pressed in the Avalonia window.
@@ -124,6 +155,7 @@ namespace Interactive
 
                 // Exit key: Esc
                 case Avalonia.Input.Key.Escape:
+                    escapeEventHandler?.Invoke();
                     break;
             }
         }
@@ -179,6 +211,7 @@ namespace Interactive
 
                         // Exit key: Esc
                         case ConsoleKey.Escape:
+                            escapeEventHandler?.Invoke();
                             break;
                     }
                 }
