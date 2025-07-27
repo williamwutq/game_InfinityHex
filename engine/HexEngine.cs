@@ -721,11 +721,16 @@ namespace Engine
                 else
                 {
                     // Remove the tail to not increment snake length
-                    TimedObject<Block>? timedTail = timedTail = cache.First(obj => timeReferenceManager.ToRelative(obj.GetTime()) == snakeLength && obj.GetObject().State() && obj.GetObject().Color() == -2);
-                    Block tail = timedTail.GetObject();
-                    timeReferenceManager.Renew(timedTail);
-                    tail.SetState(false);
-                    tail.SetColor(-1); // -1 (default unoccupied color) refering to empty space
+                    TimedObject<Block>? timedTail;
+                    try
+                    {
+                        timedTail = cache.First(obj => timeReferenceManager.ToRelative(obj.GetTime()) == snakeLength && obj.GetObject().State() && obj.GetObject().Color() == -2);
+                        Block tail = timedTail.GetObject();
+                        timeReferenceManager.Renew(timedTail);
+                        tail.SetState(false);
+                        tail.SetColor(-1); // -1 (default unoccupied color) refering to empty space
+                    }
+                    catch (InvalidOperationException){}
                     // If not, this block is now snake head
                     timeReferenceManager.Renew(timedHead);
                     head.SetState(true);
