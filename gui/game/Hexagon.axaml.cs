@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Threading;
+using Core;
 
 namespace game_InfinityHex.UI
 {
@@ -244,6 +245,18 @@ namespace game_InfinityHex.UI
         }
 
         /// <summary>
+        /// Detaches the hex printable from the hexagon grid, removing the event subscription and clearing the backend reference.
+        /// This method is used to clean up the hexagon grid when it is no longer needed or when the backend is changed.
+        /// </summary>
+        public void DetatchHexPrintable()
+        {
+            if (backend != null)
+            {
+                backend.OnHexRender -= OnBackendUpdated;
+                backend = null;
+            }
+        }
+        /// <summary>
         /// Sets the backend for the hexagon grid and subscribes to the OnHexRender event.
         /// This method updates the hexagon grid whenever the backend triggers a render event.
         /// </summary>
@@ -257,49 +270,55 @@ namespace game_InfinityHex.UI
         /// of the backend. If the grid size is changed, it will reinitialize the hexagons to match the new size using
         /// the <see cref="InitializeHexagonsIfNotNull"/> method.
         /// </remarks>
-        public void SetHexPrintable(Core.IHexPrintable? hexPrintable)
+        public void SetHexPrintable(IHexPrintable? hexPrintable)
         {
             backend = hexPrintable;
             if (backend != null)
             {
-                backend.OnHexRender += (hex) =>
-                {
-                    // Check if this is running on the UI thread
-                    if (!Dispatcher.UIThread.CheckAccess())
-                    {
-                        // If not on UI thread, dispatch to UI thread
-                        Dispatcher.UIThread.Post(() =>
-                        {
-                            UpdateHexagons();
-                        });
-                    }
-                    else
-                    {
-                        // Already on UI thread, execute directly
-                        UpdateHexagons();
-                    }
-                    void UpdateHexagons()
-                    {
-                        if (backend.IsGridUpdated())
-                        {
-                            Hex.Block[] blocks = backend.GetBlocks();
-                            if (blocks.Length != Children.Count)
-                            {
-                                // If the number of blocks has changed, clear and reinitialize the hexagons
-                                InitializeHexagonsIfNotNull();
-                            }
-                            for (int i = 0; i < blocks.Length; i++)
-                            {
-                                if (Children[i] is CoupledHexagon hexagon)
-                                {
-                                    hexagon.ChangeBlockColor(blocks[i].Color()); // This is safer than changing the blocks directly
-                                }
-                            }
-                        }
-                    }
-                };
+                backend.OnHexRender += OnBackendUpdated;
             }
             InitializeHexagonsIfNotNull();
+        }
+        /// <summary>
+        /// Updates the hexagon grid blocks based on the backend's hex printable data if the backend is updated.
+        /// This method is called whenever the backend triggers a render update event.
+        /// </summary>
+        /// <param name="hexPrintable">The hex printable object containing the updated grid data.</param>
+        private void OnBackendUpdated(IHexPrintable hexPrintable)
+        {
+            // Check if this is running on the UI thread
+            if (!Dispatcher.UIThread.CheckAccess())
+            {
+                // If not on UI thread, dispatch to UI thread
+                Dispatcher.UIThread.Post(() =>
+                {
+                    UpdateHexagons();
+                });
+            }
+            else
+            {
+                // Already on UI thread, execute directly
+                UpdateHexagons();
+            }
+            void UpdateHexagons()
+            {
+                if (hexPrintable.IsGridUpdated())
+                {
+                    Hex.Block[] blocks = hexPrintable.GetBlocks();
+                    if (blocks.Length != Children.Count)
+                    {
+                        // If the number of blocks has changed, clear and reinitialize the hexagons
+                        InitializeHexagonsIfNotNull();
+                    }
+                    for (int i = 0; i < blocks.Length; i++)
+                    {
+                        if (Children[i] is CoupledHexagon hexagon)
+                        {
+                            hexagon.ChangeBlockColor(blocks[i].Color()); // This is safer than changing the blocks directly
+                        }
+                    }
+                }
+            }
         }
         /// <summary>
         /// Initializes the hexagons in the grid based on the blocks from the backend.
