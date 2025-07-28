@@ -5,8 +5,6 @@ using System.Linq;
 using System.Text;
 using Hex;
 using Core;
-using System.Numerics;
-using System.Threading;
 
 namespace Engine
 {
@@ -635,6 +633,7 @@ namespace Engine
 
     public class HexEngine : IHexPrintable
     {
+        private Object cacheLock = new();
         private volatile bool updated = false;
         private readonly LinkedList<TimedObject<Block>> cache;
         private readonly CoordinateManager coordinateManager;
@@ -646,13 +645,16 @@ namespace Engine
         public event IHexPrintable.HexRenderDelegate? OnHexRender;
         public HexEngine()
         {
-            cache = new();
-            snakeLength = 1;
-            timeReferenceManager = new TimeReferenceManager(256, 65536);
-            timeReferenceManager.SetTimeResetHandler(OnTimeReset);
-            cache.AddFirst(timeReferenceManager.ConstructAbsoluteTimedObject<Block>(new Block(new Hex.Hex(), -2, true)));
+            lock (cacheLock)
+            {
+                cache = new();
+                snakeLength = 1;
+                timeReferenceManager = new TimeReferenceManager(256, 65536);
+                timeReferenceManager.SetTimeResetHandler(OnTimeReset);
+                cache.AddFirst(timeReferenceManager.ConstructAbsoluteTimedObject<Block>(new Block(new Hex.Hex(), -2, true)));
+            }
             directionManager = new DirectionManager(true);
-            blockGenerator = new BlockGenerator(5, 16);
+            blockGenerator = new BlockGenerator(12, 16);
             coordinateManager = new CoordinateManager(4096, 256);
             coordinateManager.SetCoordinateResetHandler(OnCoordinateReset);
             windowManager = new WindowManager(11);
@@ -779,9 +781,12 @@ namespace Engine
             List<Hex.Hex> notInCache = new List<Hex.Hex>();
             foreach (Hex.Hex coordinate in coordinates)
             {
-                if (!cache.Any(block => block.GetObject().HexClone().Equals(coordinate)))
+                lock (cacheLock)
                 {
-                    notInCache.Add(coordinate);
+                    if (!cache.Any(block => block.GetObject().HexClone().Equals(coordinate)))
+                    {
+                        notInCache.Add(coordinate);
+                    }
                 }
             }
             // If all blocks are in cache, return them, else generate blocks
@@ -815,31 +820,37 @@ namespace Engine
         }
         private TimedObject<Block> CacheSearch(Hex.Hex coordinate)
         {
-            List<TimedObject<Block>> validList = cache.Where(block => block.GetObject().HexClone().Equals(coordinate)).ToList();
-            int count = validList.Count;
-            if (count == 0)
+            lock (cacheLock)
             {
-                throw new InvalidOperationException("Internal Error as cache search have no results");
-            }
-            else if (count == 1)
-            {
-                return validList[0];
-            }
-            else
-            {
-                TimedObject<Block> first = validList[0];
-                foreach (var block in validList.Skip(1))
+                List<TimedObject<Block>> validList = cache.Where(block => block.GetObject().HexClone().Equals(coordinate)).ToList();
+                int count = validList.Count;
+                if (count == 0)
                 {
-                    cache.Remove(block);
+                    throw new InvalidOperationException("Internal Error as cache search have no results");
                 }
-                return first;
+                else if (count == 1)
+                {
+                    return validList[0];
+                }
+                else
+                {
+                    TimedObject<Block> first = validList[0];
+                    foreach (var block in validList.Skip(1))
+                    {
+                        cache.Remove(block);
+                    }
+                    return first;
+                }
             }
         }
         public void ResetEngine()
         {
-            cache.Clear();
-            timeReferenceManager.Reset();
-            cache.AddFirst(timeReferenceManager.ConstructAbsoluteTimedObject<Block>(new Block(new Hex.Hex(), -2, true)));
+            lock (cacheLock)
+            {
+                cache.Clear();
+                timeReferenceManager.Reset();
+                cache.AddFirst(timeReferenceManager.ConstructAbsoluteTimedObject<Block>(new Block(new Hex.Hex(), -2, true)));
+            }
             snakeLength = 1;
             coordinateManager.Reset();
             windowManager.Reset();
@@ -849,13 +860,19 @@ namespace Engine
             ArgumentNullException.ThrowIfNull(coordinates);
             if (coordinates.Length == 1)
             {
-                cache.AddFirst(timeReferenceManager.ConstructAbsoluteTimedObject<Block>(blockGenerator.GenerateBlock(coordinates[0])));
+                lock (cacheLock)
+                {
+                    cache.AddFirst(timeReferenceManager.ConstructAbsoluteTimedObject<Block>(blockGenerator.GenerateBlock(coordinates[0])));
+                }
             }
             else
             {
-                foreach (Hex.Hex coo in coordinates)
+                lock (cacheLock)
                 {
-                    cache.AddFirst(timeReferenceManager.ConstructAbsoluteTimedObject<Block>(blockGenerator.GenerateBlock(coo)));
+                    foreach (Hex.Hex coo in coordinates)
+                    {
+                        cache.AddFirst(timeReferenceManager.ConstructAbsoluteTimedObject<Block>(blockGenerator.GenerateBlock(coo)));
+                    }
                 }
             }
         }
