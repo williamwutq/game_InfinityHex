@@ -25,19 +25,11 @@ namespace game_InfinityHex.UI
                 ? $"{ProgramInfo.GameName} Version {ProgramInfo.GameVersion}"
                 : ProgramInfo.GameName;
 
-            // Initialize with LaunchPanel
-            var mainControl = new HexagonGrid(BackendManager.DefaultManager.Engine(), ThemeManager.DefaultManager);
-            Content = mainControl;
-            LayoutUpdated += (sender, e) =>
-            {
-                if (Bounds.Width > 0 && Bounds.Height > 0)
-                {
-                    mainControl.UpdateLayout(Bounds.Width, Bounds.Height);
-                }
-            };
+            // Initialize with GamePage
+            Content = new GamePage();
 
             InitializeComponent();
-            BackendManager.DefaultManager.Run();
+            BackendManager.DefaultManager.Start();
         }
         public void ChangeControl(Control newControl)
         {
