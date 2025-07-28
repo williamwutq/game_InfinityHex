@@ -1,17 +1,19 @@
 using Avalonia;
 using Avalonia.Controls;
 using Engine;
+using game_InfinityHex.engine;
 using Interactive;
 
 namespace game_InfinityHex.UI
 {
     public partial class MainWindow : Window
     {
-        private HexagonGrid mainControl;
-
         public MainWindow()
         {
             KeyboardListener.InitializeDefaultListener(this, new Core.DirectionManager());
+#pragma warning disable CS8604 // Possible null reference argument, which is never thown because KeyboardListener.DefaultListener is initialized in InitializeDefaultListener.
+            BackendManager.DefaultManager.AttatchKeyboardListener(KeyboardListener.DefaultListener);
+#pragma warning restore CS8604
             Background = ThemeManager.DefaultManager.FetchBrush("Background_Color");
 
             MinWidth = 400;
@@ -24,11 +26,7 @@ namespace game_InfinityHex.UI
                 : ProgramInfo.GameName;
 
             // Initialize with LaunchPanel
-            HexEngine hexEngine = new HexEngine();
-            KeyboardListener.DefaultListener?.AttatchEscapeEventHandler(hexEngine.ResetEngine);
-            KeyboardListener.DefaultListener?.Start();
-            hexEngine.SetDirectionManager(KeyboardListener.DefaultListener?.GetDirectionManager());
-            mainControl = new HexagonGrid(hexEngine, ThemeManager.DefaultManager);
+            var mainControl = new HexagonGrid(BackendManager.DefaultManager.Engine(), ThemeManager.DefaultManager);
             Content = mainControl;
             LayoutUpdated += (sender, e) =>
             {
@@ -39,12 +37,11 @@ namespace game_InfinityHex.UI
             };
 
             InitializeComponent();
-            Program.Run(hexEngine);
+            BackendManager.DefaultManager.Run();
         }
         public void ChangeControl(Control newControl)
         {
-            // mainControl = newControl;
-            Content = mainControl;
+            Content = newControl;
         }
     }
 }

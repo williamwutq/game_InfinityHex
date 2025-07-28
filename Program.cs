@@ -1,9 +1,5 @@
 ﻿using Avalonia;
-using Avalonia.Controls;
-using Engine;
-using Interactive;
 using System;
-using System.Threading;
 
 namespace game_InfinityHex;
 
@@ -26,7 +22,6 @@ partial class ProgramInfo
     public static string OSDescription => System.Runtime.InteropServices.RuntimeInformation.OSDescription;
 }
 
-//*
 partial class Program
 {
     // Initialization code. Don't use any Avalonia, third-party APIs or any
@@ -44,21 +39,4 @@ partial class Program
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<UI.App>().UsePlatformDetect().WithInterFont().LogToTrace();
-
-    public static void Run(HexEngine hexEngine)
-    {
-        Thread thread = new Thread(() =>
-        {
-            while (true)
-            {
-                Thread.Sleep(40);
-
-                hexEngine.Move();
-                // Console.WriteLine(((Core.IHexPrintable)hexEngine).GetASCIIArt());
-            }
-        });
-        thread.IsBackground = true;
-        thread.Start();
-    }
 }
-//*/
