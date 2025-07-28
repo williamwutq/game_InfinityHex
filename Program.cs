@@ -64,7 +64,7 @@ partial class Program
         {
             while (true)
             {
-                Thread.Sleep(200);
+                Thread.Sleep(40);
 
                 hexEngine.Move();
                 // Console.WriteLine(((Core.IHexPrintable)hexEngine).GetASCIIArt());
