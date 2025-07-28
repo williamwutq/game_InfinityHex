@@ -37,11 +37,18 @@ namespace game_InfinityHex.UI
         public static void ToLaunchPage()
         {
             if (ProjectWindow.Content is LaunchPage) return; // Already on LaunchPage
+            if (ProjectWindow.Content is GamePage gamePage)
+            {
+                gamePage.Cleanup(); // Cleanup the subscriptions used by the previous game page
+            }
             ProjectWindow.ChangeControl(new LaunchPage());
         }
         public static void ToGamePage()
         {
-            if (ProjectWindow.Content is GamePage) return; // Already on GamePage
+            if (ProjectWindow.Content is GamePage gamePage)
+            {
+                gamePage.Cleanup(); // Cleanup the subscriptions used by the previous game page
+            }
             ProjectWindow.ChangeControl(new GamePage());
             BackendManager.DefaultManager.Start();
         }

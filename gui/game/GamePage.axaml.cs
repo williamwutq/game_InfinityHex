@@ -20,5 +20,10 @@ namespace game_InfinityHex.UI
                 gameGrid.UpdateLayout(Bounds.Width, Bounds.Height);
             }
         }
+        public void Cleanup()
+        {
+            gameGrid.DetatchHexPrintable();
+            LayoutUpdated -= OnLayoutUpdated;
+        }
     }
 }
