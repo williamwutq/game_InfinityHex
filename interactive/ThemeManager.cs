@@ -101,7 +101,11 @@ public class Theme
 /// </summary>
 public class ThemeManager
 {
+#if DEBUG
     private static readonly string projectBaseDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
+#else
+    private static readonly string projectBaseDir = Path.GetFullPath(AppContext.BaseDirectory);
+#endif
     /// <summary>
     /// Gets the default <see cref="ThemeManager"/> instance used across the application (read-only).
     /// </summary>
@@ -131,6 +135,7 @@ public class ThemeManager
     public static ThemeManager DefaultManager { get; }
     static ThemeManager()
     {
+        Console.WriteLine("Base directory: " + projectBaseDir);
         string defaultThemeDir = "config/themes";
         string settingPath = Path.Combine(projectBaseDir, "config/Setting.json");
         string? themePath = null;
