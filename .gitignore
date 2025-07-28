@@ -12,3 +12,10 @@ obj/*
 bin/*
 
 */Debug/*
+
+### Publish scripts ###
+*.release.sh
+*.publish.sh
+
+### MacOS ###
+.DS_Store
