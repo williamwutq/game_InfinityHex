@@ -1,6 +1,4 @@
-using Avalonia;
 using Avalonia.Controls;
-using Engine;
 using game_InfinityHex.engine;
 using Interactive;
 
@@ -8,6 +6,7 @@ namespace game_InfinityHex.UI
 {
     public partial class MainWindow : Window
     {
+        public static MainWindow ProjectWindow { get; private set; } = null!;
         public MainWindow()
         {
             KeyboardListener.InitializeDefaultListener(this, new Core.DirectionManager());
@@ -25,15 +24,26 @@ namespace game_InfinityHex.UI
                 ? $"{ProgramInfo.GameName} Version {ProgramInfo.GameVersion}"
                 : ProgramInfo.GameName;
 
-            // Initialize with GamePage
-            Content = new GamePage();
+            // Initialize with LaunchPage
+            Content = new LaunchPage();
 
             InitializeComponent();
-            BackendManager.DefaultManager.Start();
+            ProjectWindow = this;
         }
         public void ChangeControl(Control newControl)
         {
             Content = newControl;
+        }
+        public static void ToLaunchPage()
+        {
+            if (ProjectWindow.Content is LaunchPage) return; // Already on LaunchPage
+            ProjectWindow.ChangeControl(new LaunchPage());
+        }
+        public static void ToGamePage()
+        {
+            if (ProjectWindow.Content is GamePage) return; // Already on GamePage
+            ProjectWindow.ChangeControl(new GamePage());
+            BackendManager.DefaultManager.Start();
         }
     }
 }
