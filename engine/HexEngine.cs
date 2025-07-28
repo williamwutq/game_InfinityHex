@@ -641,7 +641,7 @@ namespace Engine
         private int snakeLength;
         private readonly WindowManager windowManager;
         private readonly BlockGenerator blockGenerator;
-        private readonly DirectionManager directionManager;
+        private DirectionManager directionManager;
         public event IHexPrintable.HexRenderDelegate? OnHexRender;
         public HexEngine()
         {
@@ -660,6 +660,12 @@ namespace Engine
             windowManager = new WindowManager(11);
             windowManager.SetFetchBlockHandler(OnFetchRequested);
             windowManager.Reset();
+        }
+        public void SetDirectionManager(DirectionManager directionManager)
+        {
+            ArgumentNullException.ThrowIfNull(directionManager);
+            directionManager.Set(this.directionManager.GetOffsetIndex());
+            this.directionManager = directionManager;
         }
         public WindowManager GetWindowManager()
         {

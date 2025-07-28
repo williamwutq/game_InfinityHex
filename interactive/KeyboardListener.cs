@@ -104,6 +104,15 @@ namespace Interactive
         }
 
         /// <summary>
+        /// Returns the current DirectionManager instance. This is guaranteed to be non-null.
+        /// </summary>
+        /// <returns>The current DirectionManager instance used for this listener.</returns>
+        public Core.DirectionManager GetDirectionManager()
+        {
+            return directionManager;
+        }
+        
+        /// <summary>
         /// Handles the event of pressing the Escape key.
         /// </summary>
         /// <remarks>
