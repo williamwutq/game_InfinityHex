@@ -74,6 +74,31 @@ namespace Core
             lock (syncRoot) return direction;
         }
         /// <summary>
+        /// Sets the direction index based on a hexagonal coordinate.
+        /// The coordinate is converted to a direction index using <see cref="Hex.HexLib.CircularSixBlockIndex"/>.
+        /// </summary>
+        /// <param name="coordinate">The hexagonal coordinate to set the direction from.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the coordinate is null.</exception>
+        /// <exception cref="ArgumentException">Thrown if the coordinate is not a valid hexagonal coordinate.</exception>
+        /// <see cref="DirectionManager.Set(int direction)"/> 
+        public void Set(Hex.Hex coordinate)
+        {
+            int direction = Hex.HexLib.CircularSixBlockIndex(coordinate);
+            lock (syncRoot)
+            {
+                this.direction = direction;
+            }
+        }
+        /// <summary>
+        /// Sets the direction index to a specific value, wrapping it into the [0, 5] range.
+        /// Negative values are supported and normalized.
+        /// </summary>
+        /// <param name="direction">The new direction index to set.</param>
+        public void Set(int direction)
+        {
+            lock (syncRoot) this.direction = ((direction % 6) + 6) % 6; // Handles negative input safely
+        }
+        /// <summary>
         /// Performs a no-op (no operation), but still counts as a synchronized access.
         /// Useful for logging, locking coordination, or sequencing without modifying state.
         /// </summary>
