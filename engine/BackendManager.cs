@@ -49,7 +49,7 @@ namespace game_InfinityHex.engine
         {
             if (listener != null)
             {
-                listener.AttatchEscapeEventHandler(Shutdown);
+                listener.AttatchEscapeEventHandler(EndGame);
                 keyboardStart = listener.Start;
                 keyboardStop = listener.Stop;
                 engine.SetDirectionManager(listener.GetDirectionManager());
@@ -129,6 +129,14 @@ namespace game_InfinityHex.engine
         public HexEngine Engine()
         {
             return engine;
+        }
+        /// <summary>
+        /// Ends the game by shutting down the backend manager and returning to the launch page.
+        /// </summary>
+        private void EndGame()
+        {
+            Shutdown();
+            UI.MainWindow.ToLaunchPage();
         }
     }
 }

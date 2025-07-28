@@ -17,7 +17,7 @@ namespace game_InfinityHex.UI
             VerticalAlignment = VerticalAlignment.Bottom;
             Spacing = 16;
             buttons = [
-                new LaunchButton("START", null),
+                new LaunchButton("START", MainWindow.ToGamePage),
             ];
 
             this.Children.AddRange(buttons);
