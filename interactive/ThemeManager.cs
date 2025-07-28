@@ -135,7 +135,6 @@ public class ThemeManager
     public static ThemeManager DefaultManager { get; }
     static ThemeManager()
     {
-        Console.WriteLine("Base directory: " + projectBaseDir);
         string defaultThemeDir = "config/themes";
         string settingPath = Path.Combine(projectBaseDir, "config/Setting.json");
         string? themePath = null;
