@@ -34,6 +34,7 @@ namespace Interactive
         /// <param name="directionManager">The shared DirectionManager to act upon.</param>
         public static void InitializeDefaultListener(Window window, Core.DirectionManager directionManager)
         {
+            SuppressConsole();
             if (DefaultListener == null)
             {
                 DefaultListener = new KeyboardListener(window, directionManager);

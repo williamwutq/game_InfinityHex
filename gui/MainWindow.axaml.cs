@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Engine;
+using Interactive;
 
 namespace game_InfinityHex.UI
 {
@@ -10,6 +11,7 @@ namespace game_InfinityHex.UI
 
         public MainWindow()
         {
+            KeyboardListener.InitializeDefaultListener(this, new Core.DirectionManager());
             Background = ThemeManager.DefaultManager.FetchBrush("Background_Color");
 
             MinWidth = 400;
@@ -22,8 +24,11 @@ namespace game_InfinityHex.UI
                 : ProgramInfo.GameName;
 
             // Initialize with LaunchPanel
-            var backend = Program.SetUpBackend(this);
-            mainControl = new HexagonGrid(backend, ThemeManager.DefaultManager);
+            HexEngine hexEngine = new HexEngine();
+            KeyboardListener.DefaultListener?.AttatchEscapeEventHandler(hexEngine.ResetEngine);
+            KeyboardListener.DefaultListener?.Start();
+            hexEngine.SetDirectionManager(KeyboardListener.DefaultListener?.GetDirectionManager());
+            mainControl = new HexagonGrid(hexEngine, ThemeManager.DefaultManager);
             Content = mainControl;
             LayoutUpdated += (sender, e) =>
             {
@@ -34,7 +39,7 @@ namespace game_InfinityHex.UI
             };
 
             InitializeComponent();
-            Program.Run(backend);
+            Program.Run(hexEngine);
         }
         public void ChangeControl(Control newControl)
         {

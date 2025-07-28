@@ -45,19 +45,6 @@ partial class Program
     public static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<UI.App>().UsePlatformDetect().WithInterFont().LogToTrace();
 
-    /// <summary>
-    /// Sets up the backend for the game.
-    /// </summary>
-    public static HexEngine SetUpBackend(Window window)
-    {
-        KeyboardListener.SuppressConsole();
-        HexEngine hexEngine = new HexEngine();
-        KeyboardListener listener = new KeyboardListener(window, hexEngine.GetDirectionManager());
-        listener.AttatchEscapeEventHandler(hexEngine.ResetEngine);
-        listener.Start();
-        return hexEngine;
-    }
-
     public static void Run(HexEngine hexEngine)
     {
         Thread thread = new Thread(() =>
