@@ -22,9 +22,24 @@ namespace Interactive
     public class KeyboardListener
     {
         private static bool InConsole = !Console.IsInputRedirected && Environment.UserInteractive;
+        public static KeyboardListener? DefaultListener { get; private set; }
         private readonly Window? window;
         private readonly Core.DirectionManager directionManager;
         private readonly System.Threading.CancellationTokenSource cts = new();
+        /// <summary>
+        /// Initializes the default keyboard listener with the provided window and direction manager. This is only used for GUI applications.
+        /// If a default listener already exists, it will not be re-initialized.
+        /// </summary>
+        /// <param name="window">The main window to interact with, if needed.</param>
+        /// <param name="directionManager">The shared DirectionManager to act upon.</param>
+        public static void InitializeDefaultListener(Window window, Core.DirectionManager directionManager)
+        {
+            if (DefaultListener == null)
+            {
+                DefaultListener = new KeyboardListener(window, directionManager);
+                DefaultListener.Start();
+            }
+        }
         /// <summary>
         /// Suppresses console input by redirecting it to an empty string reader.
         /// This is useful when the application is running in a GUI context and console input should not interfere with the UI.
