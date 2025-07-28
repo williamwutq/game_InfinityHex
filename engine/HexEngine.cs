@@ -698,7 +698,7 @@ namespace Engine
                 }
                 catch (InvalidOperationException)
                 {
-                    OnGenerationRequested([new Hex.Hex()]);
+                    OnGenerationRequested([coordinateManager.GetOrigin()]);
                     timedHead = CacheSearch(coordinateManager.GetOrigin());
                 }
                 Block head = timedHead.GetObject();
@@ -758,16 +758,22 @@ namespace Engine
         public void OnCoordinateReset(Hex.Hex offset)
         {
             offset = new Hex.Hex().Subtract(offset);
-            foreach (TimedObject<Block> block in cache)
+            lock (cacheLock)
             {
-                block.GetObject().Move(offset);
+                foreach (TimedObject<Block> block in cache)
+                {
+                    block.GetObject().Move(offset);
+                }
             }
         }
         public void OnTimeReset(int time)
         {
-            foreach (TimedObject<Block> timedObject in cache)
+            lock (cacheLock)
             {
-                timedObject.Age(time);
+                foreach (TimedObject<Block> timedObject in cache)
+                {
+                    timedObject.Age(time);
+                }
             }
         }
         public Block[] OnFetchRequested(Hex.Hex[] coordinates)
@@ -806,7 +812,7 @@ namespace Engine
                 OnGenerationRequested([.. notInCache]);
             }
             // Return all blocks in cache
-            return Array.ConvertAll(coordinates, coo => coordinateManager.ToAbsolute(CacheSearch(coo).GetObject()));
+            return Array.ConvertAll(coordinates, coo => coordinateManager.ToAbsolute(SafeGetBlock(coo)));
         }
 
         public Block SafeGetBlock(Hex.Hex coordinate)
