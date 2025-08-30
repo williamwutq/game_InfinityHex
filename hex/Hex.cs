@@ -92,7 +92,7 @@ namespace Hex
     /// <version>0.1</version>
     public class Hex : System.ICloneable
     {
-        private readonly double halfSinOf60 = System.Math.Sqrt(3) / 4;
+        private static readonly double halfSinOf60 = System.Math.Sqrt(3) / 4;
         private int x;
         private int y;
         /// <summary>
