@@ -120,7 +120,7 @@ namespace Engine
                 for (int j = -size * 2; j <= size * 2; j++)
                 {
                     // Calculate hex coordinate
-                    Hex.Hex coordinate = new Hex.Hex((j + 3 * lineJ) / 2, (j - 3 * lineJ) / 2);
+                    Hex.Hex coordinate = Hex.Hex.RawHex((j + 3 * lineJ) / 2, (j - 3 * lineJ) / 2);
                     // Filter for "straight" hexes
                     if (coordinate.LineJ != lineJ || coordinate.J != j)
                     {
@@ -899,7 +899,7 @@ namespace Engine
                 for (int j = -size * 2; j <= size * 2; j++)
                 {
                     // Calculate hex coordinate
-                    Hex.Hex coordinate = new Hex.Hex((j + 3 * lineJ) / 2, (j - 3 * lineJ) / 2);
+                    Hex.Hex coordinate = Hex.Hex.RawHex((j + 3 * lineJ) / 2, (j - 3 * lineJ) / 2);
                     // Filter for "straight" hexes
                     if (coordinate.LineJ == lineJ && coordinate.J == j && coordinate.InRange(windowSize))
                     {
