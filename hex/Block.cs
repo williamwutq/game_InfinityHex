@@ -95,7 +95,7 @@ namespace Hex
         /// </summary>
         /// <param name="hex">The hex coordinate.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="hex"/> passed in is null.</exception>
-        public Block(Hex hex) : base(hex.I, hex.K)
+        public Block(Hex hex) : base(hex.LineI, hex.LineK)
         {
             System.ArgumentNullException.ThrowIfNull(hex);
             this.state = false;
@@ -107,7 +107,7 @@ namespace Hex
         /// <param name="hex">The hex coordinate.</param>
         /// <param name="color">The color of the block.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="hex"/> passed in is null.</exception>
-        public Block(Hex hex, int color) : base(hex.I, hex.K)
+        public Block(Hex hex, int color) : base(hex.LineI, hex.LineK)
         {
             System.ArgumentNullException.ThrowIfNull(hex);
             this.state = false;
@@ -119,7 +119,7 @@ namespace Hex
         /// <param name="hex">The hex coordinate.</param>
         /// <param name="state">The state of the block.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="hex"/> passed in is null.</exception>
-        public Block(Hex hex, bool state) : base(hex.I, hex.K)
+        public Block(Hex hex, bool state) : base(hex.LineI, hex.LineK)
         {
             System.ArgumentNullException.ThrowIfNull(hex);
             if (state)
@@ -139,36 +139,11 @@ namespace Hex
         /// <param name="color">The color of the block.</param>
         /// <param name="state">The state of the block.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="hex"/> passed in is null.</exception>
-        public Block(Hex hex, int color, bool state) : base(hex.I, hex.K)
+        public Block(Hex hex, int color, bool state) : base(hex.LineI, hex.LineK)
         {
             System.ArgumentNullException.ThrowIfNull(hex);
             this.state = state;
             this.color = color;
-        }
-        /// <summary>
-        /// Creates a block using hexagonal line indices and assigns it a specific color.
-        /// The block is shifted accordingly in the coordinate system.
-        /// </summary>
-        /// <param name="i">The I-line index in the hexagonal coordinate system.</param>
-        /// <param name="k">The K-line index in the hexagonal coordinate system.</param>
-        /// <param name="color">The color of the block.</param>
-        /// <returns>A new block positioned according to the given line indices with the specified color.</returns>
-        public static Block LineBlock(int i, int k, int color)
-        {
-            return new Block(Hex.LineHex(i, k), color);
-        }
-        /// <summary>
-        /// Creates a block using hexagonal line indices and assigns it a specific color and state.
-        /// The block is shifted accordingly in the coordinate system.
-        /// </summary>
-        /// <param name="i">The I-line index in the hexagonal coordinate system.</param>
-        /// <param name="k">The K-line index in the hexagonal coordinate system.</param>
-        /// <param name="color">The color of the block.</param>
-        /// <param name="state">The state of the block.</param>
-        /// <returns>A new block positioned according to the given line indices with the specified color and state.</returns>
-        public static Block LineBlock(int i, int k, int color, bool state)
-        {
-            return new Block(Hex.LineHex(i, k), color, state);
         }
         /// <summary>
         /// Color of the block
