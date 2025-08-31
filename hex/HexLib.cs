@@ -9,31 +9,31 @@ namespace Hex
         /// <summary>
         /// Gets the origin hex at coordinates (0, 0, 0), the zero coordinate and the center of the 7-Block grid.
         /// </summary>
-        public static Hex Origin => Hex.LineHex();
+        public static Hex Origin => new Hex();
         /// <summary>
         /// Gets the hex at coordinates (1, -1, 0) in the 7-Block grid.
         /// </summary>
-        public static Hex KPlus => Hex.LineHex(1, 0);
+        public static Hex KPlus => new Hex(1, 0);
         /// <summary>
         /// Gets the hex at coordinates (1, 0, 1) in the 7-Block grid.
         /// </summary>
-        public static Hex JPlus => Hex.LineHex(1, 1);
+        public static Hex JPlus => new Hex(1, 1);
         /// <summary>
         /// Gets the hex at coordinates (0, 1, 1) in the 7-Block grid.
         /// </summary>
-        public static Hex IPlus => Hex.LineHex(0, 1);
+        public static Hex IPlus => new Hex(0, 1);
         /// <summary>
         /// Gets the hex at coordinates (-1, 1, 0) in the 7-Block grid.
         /// </summary>
-        public static Hex KMinus => Hex.LineHex(-1, 0);
+        public static Hex KMinus => new Hex(-1, 0);
         /// <summary>
         /// Gets the hex at coordinates (-1, 0, -1) in the 7-Block grid.
         /// </summary>
-        public static Hex JMinus => Hex.LineHex(-1, -1);
+        public static Hex JMinus => new Hex(-1, -1);
         /// <summary>
         /// Gets the hex at coordinates (0, -1, -1) in the 7-Block grid.
         /// </summary>
-        public static Hex IMinus => Hex.LineHex(0, -1);
+        public static Hex IMinus => new Hex(0, -1);
         /// <summary>
         /// Retrieves a hex from the standard 7-Block grid by index.
         /// The standard 7-Block grid is defined as a sequence of hexes at the following line coordinates {I, J, K}:

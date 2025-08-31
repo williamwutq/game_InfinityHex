@@ -80,12 +80,6 @@ namespace Hex
     ///   <item>Determine relative orientation in the grid: <see cref="Front(Hex)"/>, <see cref="Back(Hex)"/>, and axis-specific versions.</item>
     ///   <item>Cloning any instance of its subclasses using <see cref="Clone"/>.</item>
     /// </list>
-    ///
-    /// <para>
-    /// <h2>Usage Notes</h2>
-    /// It is recommended to use the factory method <see cref="Create(int, int)"/> instead of direct constructors,
-    /// as it provides hexes correctly shifted in line coordinates according to hexagonal grid logic.
-    /// </para>
     /// </remarks>
     /// <since>0.1</since>
     /// <author>William Wu</author>
@@ -117,6 +111,7 @@ namespace Hex
         /// Creates a default hex coordinate at (0,0).
         /// </summary>
         /// <returns>A new <see cref="Hex"/> instance at the origin.</returns>
+        [System.Obsolete("Deprecated after coordinate system refactor. Use constructor instead.")]
         public static Hex LineHex()
         {
             return new Hex();
@@ -128,9 +123,20 @@ namespace Hex
         /// <param name="i">The I-line index in the hexagonal coordinate system.</param>
         /// <param name="k">The K-line index in the hexagonal coordinate system.</param>
         /// <returns>A new <see cref="Hex"/> coordinate positioned according to the given line indices.</returns>
+        [System.Obsolete("Deprecated after coordinate system refactor. Use constructor instead.")]
         public static Hex LineHex(int i, int k)
         {
-            return new Hex(2 * k - i, 2 * i - k);
+            return new Hex(i, k);
+        }
+        /// <summary>
+        /// Creates a hex coordinate using direct coordinates. This is for backwards compatibility with the raw coordinate system.
+        /// </summary>
+        /// <param name="i">The raw I-coordinate.</param>
+        /// <param name="k">The raw K-coordinate.</param>
+        /// <returns>A new <see cref="Hex"/> coordinate positioned according to the given raw indices.</returns>
+        public static Hex RawHex(int i, int k)
+        {
+            return new Hex((i + 2 * k) / 3, (2 * i + k) / 3);
         }
 
         // Raw coordinates
@@ -138,7 +144,7 @@ namespace Hex
         /// <summary>
         /// Gets the raw I-coordinate.
         /// </summary>
-        public int I => x;
+        public int I => y * 2 - x;
         /// <summary>
         /// Gets the raw J-coordinate.
         /// </summary>
@@ -146,21 +152,21 @@ namespace Hex
         /// <summary>
         /// Gets the raw K-coordinate.
         /// </summary>
-        public int K => y;
+        public int K => x * 2 - y;
 
         // Lines
         /// <summary>
         /// Gets the line index along the I-axis in the hexagonal coordinate system.
         /// </summary>
-        public int LineI => (2 * y + x) / 3;
+        public int LineI => x;
         /// <summary>
         /// Gets the line index along the J-axis in the hexagonal coordinate system.
         /// </summary>
-        public int LineJ => (x - y) / 3;
+        public int LineJ => y - x;
         /// <summary>
         /// Gets the line index along the K-axis in the hexagonal coordinate system.
         /// </summary>
-        public int LineK => (2 * x + y) / 3;
+        public int LineK => y;
 
         /// <summary>
         /// Gets a string representation of the line indices of the hex along all axes.
@@ -273,7 +279,7 @@ namespace Hex
         /// <see cref="Front(Hex)"/>
         public bool FrontI(Hex other)
         {
-            return x == other.x + 2 && y == other.y - 1;
+            return x == other.x + 1 && y == other.y;
         }
         /// <summary>
         /// Determines if this hex coordinate is in front of another hex coordinate on the J-axis.
@@ -283,7 +289,7 @@ namespace Hex
         /// <see cref="Front(Hex)"/>
         public bool FrontJ(Hex other)
         {
-            return x == other.x + 1 && y == other.y + 1;
+            return x == other.x - 1 && y == other.y + 1;
         }
         /// <summary>
         /// Determines if this hex coordinate is in front of another hex coordinate on the K-axis.
@@ -293,7 +299,7 @@ namespace Hex
         /// <see cref="Front(Hex)"/>
         public bool FrontK(Hex other)
         {
-            return x == other.x - 1 && y == other.y + 2;
+            return x == other.x && y == other.y + 1;
         }
         /// <summary>
         /// Determines if this hex coordinate is behind another hex coordinate on the I-axis.
@@ -303,7 +309,7 @@ namespace Hex
         /// <see cref="Back(Hex)"/>
         public bool BackI(Hex other)
         {
-            return x == other.x - 2 && y == other.y + 1;
+            return x == other.x - 1 && y == other.y;
         }
         /// <summary>
         /// Determines if this hex coordinate is behind another hex coordinate on the J-axis.
@@ -313,7 +319,7 @@ namespace Hex
         /// <see cref="Back(Hex)"/>
         public bool BackJ(Hex other)
         {
-            return x == other.x - 1 && y == other.y - 1;
+            return x == other.x + 1 && y == other.y - 1;
         }
         /// <summary>
         /// Determines if this hex coordinate is behind another hex coordinate on the K-axis.
@@ -323,7 +329,7 @@ namespace Hex
         /// <see cref="Back(Hex)"/>
         public bool BackK(Hex other)
         {
-            return x == other.x + 1 && y == other.y - 2;
+            return x == other.x && y == other.y - 1;
         }
 
         /// <summary>
@@ -361,13 +367,13 @@ namespace Hex
         /// </returns>
         public double X => halfSinOf60 * (x + y);
         /// Converts the hexagonal coordinates to a rectangular Y coordinate.
-        /// This transformation is based on the hexagonal grid layout, where the T-coordinate
+        /// This transformation is based on the hexagonal grid layout, where the Y-coordinate
         /// is computed using the sine of 30 degrees to account for the hexagonal tiling pattern.
         /// </summary>
         /// <returns>
         /// The Y-coordinate in rectangular space.
         /// </returns>
-        public double Y => (x - y) / 4.0;
+        public double Y => (y - x) * 0.25;
         /// <summary>
         /// Gets a string representation of the line indices of the hex along all axes.
         /// Format: {I = i, J = j, K = k}
@@ -392,8 +398,7 @@ namespace Hex
         /// <param name="unit">The number of units to move.</param>
         public void MoveI(int unit)
         {
-            x += 2 * unit;
-            y -= unit;
+            x += unit;
         }
         /// <summary>
         /// Moves the hex coordinate along the J-axis.
@@ -401,7 +406,7 @@ namespace Hex
         /// <param name="unit">The number of units to move.</param>
         public void MoveJ(int unit)
         {
-            x += unit;
+            x -= unit;
             y += unit;
         }
         /// <summary>
@@ -410,8 +415,7 @@ namespace Hex
         /// <param name="unit">The number of units to move.</param>
         public void MoveK(int unit)
         {
-            x -= unit;
-            y += 2 * unit;
+            y += unit;
         }
         /// <summary>
         /// Creates a new hex coordinate shifted along the I-axis.
@@ -420,7 +424,7 @@ namespace Hex
         /// <returns>A new hex coordinate shifted along the I-axis.</returns>
         public virtual Hex ShiftI(int unit)
         {
-            return new Hex(x + 2 * unit, y - unit);
+            return new Hex(x + unit, y);
         }
         /// <summary>
         /// Creates a new hex coordinate shifted along the J-axis.
@@ -429,7 +433,7 @@ namespace Hex
         /// <returns>A new hex coordinate shifted along the J-axis.</returns>
         public virtual Hex ShiftJ(int unit)
         {
-            return new Hex(x + unit, y + unit);
+            return new Hex(x - unit, y + unit);
         }
         /// <summary>
         /// Creates a new hex coordinate shifted along the K-axis.
@@ -438,7 +442,7 @@ namespace Hex
         /// <returns>A new hex coordinate shifted along the K-axis.</returns>
         public virtual Hex ShiftK(int unit)
         {
-            return new Hex(x - unit, y + 2 * unit);
+            return new Hex(x, y + unit);
         }
         /// <summary>
         /// Adds another hex to this hex coordinate and returns a new hex coordinate.
