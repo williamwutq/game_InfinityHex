@@ -20,9 +20,9 @@ namespace Hex.Tests
         }
 
         [TestMethod]
-        public void TestCoordinateConstructor()
+        public void TestRawCoordinateConstructor()
         {
-            Hex hex = new Hex(5, 2);
+            Hex hex = Hex.RawHex(5, 2);
             Assert.AreEqual(5, hex.I, "I coordinate should be 5");
             Assert.AreEqual(7, hex.J, "J coordinate should be 7");
             Assert.AreEqual(2, hex.K, "K coordinate should be 2");
@@ -32,30 +32,9 @@ namespace Hex.Tests
         }
 
         [TestMethod]
-        public void TestStaticHexFactory()
-        {
-            Hex hex = Hex.LineHex();
-            Assert.AreEqual(0, hex.I, "I coordinate should be 0");
-            Assert.AreEqual(0, hex.J, "J coordinate should be 0");
-            Assert.AreEqual(0, hex.K, "K coordinate should be 0");
-        }
-
-        [TestMethod]
-        public void TestHexLineFactory()
-        {
-            Hex hex = Hex.LineHex(1, 2);
-            Assert.AreEqual(3, hex.I, "I coordinate should be 3");
-            Assert.AreEqual(3, hex.J, "J coordinate should be 3");
-            Assert.AreEqual(0, hex.K, "K coordinate should be 0");
-            Assert.AreEqual(1, hex.LineI, "Line I should be 1");
-            Assert.AreEqual(1, hex.LineJ, "Line J should be 1");
-            Assert.AreEqual(2, hex.LineK, "Line K should be 2");
-        }
-
-        [TestMethod]
         public void TestLineCoordinates()
         {
-            Hex hex = new Hex(3, 6);
+            Hex hex = new Hex(5, 4);
             Assert.AreEqual(5, hex.LineI, "Line I should be 5");
             Assert.AreEqual(-1, hex.LineJ, "Line J should be -1");
             Assert.AreEqual(4, hex.LineK, "Line K should be 4");
@@ -65,8 +44,8 @@ namespace Hex.Tests
         [TestMethod]
         public void TestInLineChecks()
         {
-            Hex hex1 = new Hex(3, 6);
-            Hex hex2 = new Hex(0, 3);
+            Hex hex1 = new Hex(5, 4);
+            Hex hex2 = new Hex(4, 3);
             Assert.IsTrue(hex1.InLineI(5), "hex1 should be in I line 5");
             Assert.IsTrue(hex1.InLineJ(-1), "hex1 should be in J line -1");
             Assert.IsTrue(hex1.InLineK(4), "hex1 should be in K line 4");
@@ -78,10 +57,10 @@ namespace Hex.Tests
         [TestMethod]
         public void TestAdjacency()
         {
-            Hex hex1 = Hex.LineHex(0, 0);
-            Hex hex2 = Hex.LineHex(0, 1); // Front I
-            Hex hex3 = Hex.LineHex(1, 1); // Front J
-            Hex hex4 = Hex.LineHex(1, 0); // Front K
+            Hex hex1 = new Hex(0, 0);
+            Hex hex2 = new Hex(0, 1); // Front I
+            Hex hex3 = new Hex(1, 1); // Front J
+            Hex hex4 = new Hex(1, 0); // Front K
             Assert.IsTrue(hex2.FrontI(hex1), "hex1 should be front I of hex2");
             Assert.IsTrue(hex3.FrontJ(hex1), "hex1 should be front J of hex3");
             Assert.IsTrue(hex4.FrontK(hex1), "hex1 should be front K of hex4");
@@ -141,14 +120,14 @@ namespace Hex.Tests
         {
             Hex hex = new Hex(3, 6);
             double halfSin60 = Math.Sqrt(3) / 4;
-            Assert.AreEqual(halfSin60 * (3 + 6), hex.X, 0.0001, "X coordinate conversion incorrect");
-            Assert.AreEqual((3 - 6) / 4.0, hex.Y, 0.0001, "Y coordinate conversion incorrect");
+            Assert.AreEqual(halfSin60 * 9, hex.X, 0.0001, "X coordinate conversion incorrect");
+            Assert.AreEqual(-0.75, hex.Y, 0.0001, "Y coordinate conversion incorrect");
         }
 
         [TestMethod]
         public void TestInRange()
         {
-            Hex hex = Hex.LineHex(1, 1);
+            Hex hex = new Hex(1, 1);
             Assert.IsTrue(hex.InRange(2), "Hex should be in range 2");
             Assert.IsFalse(hex.InRange(1), "Hex should not be in range 1");
         }
@@ -176,7 +155,7 @@ namespace Hex.Tests
         [TestMethod]
         public void TestToString()
         {
-            Hex hex = new Hex(3, 6);
+            Hex hex = new Hex(5, 4);
             string expected = $"Hex[raw = {{3, 9, 6}}, line = {{5, -1, 4}}, rect = {{ {Math.Sqrt(3) / 4 * 9}, {-3 / 4.0}}}]";
             Assert.AreEqual(expected, hex.ToString(), "ToString output should match");
         }
