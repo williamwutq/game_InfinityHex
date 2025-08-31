@@ -102,7 +102,7 @@ public class Theme
 public class ThemeManager
 {
 #if DEBUG
-    private static readonly string projectBaseDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
+    private static readonly string projectBaseDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));
 #else
     private static readonly string projectBaseDir = Path.GetFullPath(AppContext.BaseDirectory);
 #endif
