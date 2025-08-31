@@ -1,7 +1,7 @@
 namespace Hex
 {
     /// <summary>
-    /// From Java implementation of Hex from the HappyHex project.
+    /// Upgraded from Java implementation of Hex from the HappyHex project.
     /// <para>
     /// Represents a 2D coordinate in a hexagonal grid system using a specialized integer coordinate model.
     /// Supports both raw coordinate access and derived line-based computations across three axes: I, J, and K.
@@ -56,14 +56,8 @@ namespace Hex
     /// </para>
     /// <list type="bullet">
     ///   <item><c>x</c> and <c>y</c> are the base values stored in each <see cref="Hex"/> instance.</item>
-    ///   <item><c>I = x</c>, <c>K = y</c>, and <c>J = x + y</c>.</item>
-    ///   <item>Line indices are derived as follows:
-    ///     <list type="bullet">
-    ///       <item><see cref="LineI"/> is <c>(2y + x) / 3</c></item>
-    ///       <item><see cref="LineJ"/> is <c>(x - y) / 3</c></item>
-    ///       <item><see cref="LineK"/> is <c>(2x + y) / 3</c></item>
-    ///     </list>
-    ///   </item>
+    ///   <item>Raw indices are computed with simple conversion.</item>
+    ///   <item>Line indices are directly retrieved </item>
     /// </list>
     ///
     /// <para>
@@ -73,7 +67,7 @@ namespace Hex
     /// <list type="bullet">
     ///   <item>Access and compute raw coordinates: <see cref="I"/>, <see cref="J"/>, <see cref="K"/>.</item>
     ///   <item>Access and compute line-distance based coordinates: <see cref="LineI"/>, <see cref="LineJ"/>, <see cref="LineK"/>.</item>
-    ///   <item>Create hex objects through constructors or factory methods: <see cref="Hex()"/>, <see cref="Hex(int, int)"/>, <see cref="LineHex()"/>, <see cref="LineHex(int, int)"/>.</item>
+    ///   <item>Create hex objects through constructors or factory methods: <see cref="Hex()"/>, <see cref="Hex(int, int)"/>, <see cref="RawHex(int, int)"/>.</item>
     ///   <item>Move hex object along I, J, or K axes (increment line coordinates): <see cref="MoveI(int)"/>, <see cref="MoveJ(int)"/>, <see cref="MoveK(int)"/>.</item>
     ///   <item>Addition and subtraction of coordinates: <see cref="Add(Hex)"/> and <see cref="Subtract(Hex)"/>.</item>
     ///   <item>Check for line alignment and adjacency between hexes: <see cref="InLineI(Hex)"/>, <see cref="Adjacent(Hex)"/>, etc.</item>
@@ -83,7 +77,7 @@ namespace Hex
     /// </remarks>
     /// <since>0.1</since>
     /// <author>William Wu</author>
-    /// <version>0.1</version>
+    /// <version>0.2</version>
     public class Hex : System.ICloneable
     {
         private static readonly double halfSinOf60 = System.Math.Sqrt(3) / 4;
