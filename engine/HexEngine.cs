@@ -635,7 +635,7 @@ namespace Engine
     {
         private Object cacheLock = new();
         private volatile bool updated = false;
-        private readonly LinkedList<TimedObject<Block>> cache;
+        private readonly HashSet<TimedObject<Block>> cache;
         private readonly CoordinateManager coordinateManager;
         private readonly TimeReferenceManager timeReferenceManager;
         private int snakeLength;
@@ -651,7 +651,7 @@ namespace Engine
                 snakeLength = 1;
                 timeReferenceManager = new TimeReferenceManager(256, 65536);
                 timeReferenceManager.SetTimeResetHandler(OnTimeReset);
-                cache.AddFirst(timeReferenceManager.ConstructAbsoluteTimedObject<Block>(new Block(new Hex.Hex(), -2, true)));
+                cache.Add(timeReferenceManager.ConstructAbsoluteTimedObject<Block>(new Block(new Hex.Hex(), -2, true)));
             }
             directionManager = new DirectionManager(true);
             blockGenerator = new BlockGenerator(12, 16);
@@ -745,9 +745,20 @@ namespace Engine
                     head.SetColor(-2); // -2 (default occupied color) refering to snake
                 }
                 // Remove outdated cache if exist using expire in timeReferenceManager
-                while (cache.Count > 0 && cache.Last != null && timeReferenceManager.IsExpired(cache.Last.Value))
+                List<TimedObject<Block>> toRemove = new List<TimedObject<Block>>();
+                lock (cacheLock)
                 {
-                    cache.RemoveLast();
+                    foreach (TimedObject<Block> timedObject in cache)
+                    {
+                        if (timeReferenceManager.ToRelative(timedObject.GetTime()) >= timeReferenceManager.GetRelativeExpire())
+                        {
+                            toRemove.Add(timedObject);
+                        }
+                    }
+                    foreach (TimedObject<Block> timedObject in toRemove)
+                    {
+                        cache.Remove(timedObject);
+                    }
                 }
                 // Mark the grid as updated
                 updated = true;
@@ -861,7 +872,7 @@ namespace Engine
             {
                 cache.Clear();
                 timeReferenceManager.Reset();
-                cache.AddFirst(timeReferenceManager.ConstructAbsoluteTimedObject<Block>(new Block(new Hex.Hex(), -2, true)));
+                cache.Add(timeReferenceManager.ConstructAbsoluteTimedObject<Block>(new Block(new Hex.Hex(), -2, true)));
             }
             snakeLength = 1;
             coordinateManager.Reset();
@@ -874,7 +885,7 @@ namespace Engine
             {
                 lock (cacheLock)
                 {
-                    cache.AddFirst(timeReferenceManager.ConstructAbsoluteTimedObject<Block>(blockGenerator.GenerateBlock(coordinates[0])));
+                    cache.Add(timeReferenceManager.ConstructAbsoluteTimedObject<Block>(blockGenerator.GenerateBlock(coordinates[0])));
                 }
             }
             else
@@ -883,7 +894,7 @@ namespace Engine
                 {
                     foreach (Hex.Hex coo in coordinates)
                     {
-                        cache.AddFirst(timeReferenceManager.ConstructAbsoluteTimedObject<Block>(blockGenerator.GenerateBlock(coo)));
+                        cache.Add(timeReferenceManager.ConstructAbsoluteTimedObject<Block>(blockGenerator.GenerateBlock(coo)));
                     }
                 }
             }
